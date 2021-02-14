@@ -35,6 +35,11 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
         P[i+1] <- P[i] * (1-K[i]) + sig_eta  
       }
     }
+    
+    a[n] <- a[n-1] + K[n-1]*v[n-1]
+    P[n] <- P[n-1] * (1-K[n-1]) + sig_eta  
+    
+    
   }
   
   # Upper and lower bounds of a

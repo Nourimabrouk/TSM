@@ -1,14 +1,16 @@
 plot <- function(){
   # Plot KF (2.1)
+  
+n <- length(data)
 par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
 
-filtered_state <- df_kalman_filtered_state$a[2:99]
-filtered_state_lower_bound <- df_kalman_filtered_state$a_lb[2:99]
-filtered_state_upper_bound <- df_kalman_filtered_state$a_ub[2:99]
+filtered_state <- df_kalman_filtered_state$a[2:n]
+filtered_state_lower_bound <- df_kalman_filtered_state$a_lb[2:n]
+filtered_state_upper_bound <- df_kalman_filtered_state$a_ub[2:n]
 
-filtered_variance <- df_kalman_filtered_state$P[2:99]
-state_error <- df_kalman_filtered_state$v[2:99]
-state_error_variance <- df_kalman_filtered_state$F[2:99]
+filtered_variance <- df_kalman_filtered_state$P[2:n]
+state_error <- df_kalman_filtered_state$v[2:n]
+state_error_variance <- df_kalman_filtered_state$F[2:n]
 
 y_lim_one <- c(min(data), max(data))
 y_lim_two <- c(min(filtered_variance), max(filtered_variance))
