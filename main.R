@@ -1,3 +1,5 @@
+
+getwd()
 "
 Time Series Models
 Assignment 1
@@ -14,7 +16,6 @@ Main file to run the analysis
 rm(list=ls())
 
 # Imports ----------
-library(tidyverse)
 library(here)
 source("functions.R")
 
@@ -22,9 +23,7 @@ options(warn=-1)
 
 # Data import--------
 
-setwd(here("Data"))
 data = Nile
-
 # 2.1 Kalman Filter
 # Initialises values
 # Applies Kalman Filter
@@ -65,7 +64,7 @@ df_kalman_missing_data <- kalman_filter(data_missing, theta, sig_eps, sig_eta)
 df_smoothed_state_missing_data <- smoothed_state(df_kalman_missing_data)
 df_disturbance_missing_data <- disturbances_smoothing(df_kalman_missing_data, df_smoothed_state_missing_data)
 
-plotFive(df_kalman_missing_data, df_smoothed_state_missing_data)
+plotFive(data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
 # 2.6
 # 2.7
 # 2.8
