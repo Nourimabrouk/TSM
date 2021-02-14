@@ -65,15 +65,9 @@ df_kalman_missing_data <- kalman_filter(data_missing, theta, sig_eps, sig_eta)
 df_smoothed_state_missing_data <- smoothed_state(df_kalman_missing_data)
 df_disturbance_missing_data <- disturbances_smoothing(df_kalman_missing_data, df_smoothed_state_missing_data)
 
-<<<<<<< Updated upstream
 plotFive(df_kalman_missing_data, df_smoothed_state_missing_data)
 # 2.6
 # 2.7
 # 2.8
 # 2.9
   
-=======
-plotFive(data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
-
-
->>>>>>> Stashed changes

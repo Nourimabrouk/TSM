@@ -26,10 +26,12 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       K[i] <- 0
       a_y[i] <- a[i]
       P_y[i] <- P[i]
-      a[i+1] <- a[i]
-      P[i+1] <- P[i] + sig_eta  
-
       
+      if(i < (n-1)){
+        a[i+1] <- a[i] + K[i]*v[i]
+        P[i+1] <- P[i] * (1-K[i]) + sig_eta  
+      }
+
     } else{
       
       K[i] <- P[i]/F[i]
@@ -41,8 +43,10 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
         P[i+1] <- P[i] * (1-K[i]) + sig_eta  
       }
     }
+    
     a[n] <- a[n-1] + K[n-1]*v[n-1]
     P[n] <- P[n-1] * (1-K[n-1]) + sig_eta  
+    
     
   }
   
@@ -53,7 +57,6 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   kalman <- data.frame(a, P, v, F, K, a_y, P_y, a_lb, a_ub)
   return(kalman) 
 }
-
 smoothed_state <- function(df){
   "
   Goal: Compute smoothed state through reverse loop
@@ -66,6 +69,7 @@ smoothed_state <- function(df){
   v <- df$v
   F <- df$F
   K <- df$K
+  
   
   n <- length(v)
   alpha <- rep(0,n) # smoothed stated
@@ -87,11 +91,11 @@ smoothed_state <- function(df){
     }
     if (is.nan(v[j]) || is.na(v[j])){
       r[j-1] <- r[j]
-      alpha[j] <- a[j] + P[j]*r[j-1]
+      alpha[j] <- a[j]+P[j]*r[j-1]
     }
     else {                   
-      r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
-      alpha[j] <- a[j] + P[j]*r[j-1]
+      r[j-1] <- (v[j]/F[j])+L[j]*r[j]
+      alpha[j] <- a[j]+P[j]*r[j-1]
     }  
   }
   
@@ -102,7 +106,6 @@ smoothed_state <- function(df){
   SmoothedState_df <- data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
   return (SmoothedState_df)
 }
-
 disturbances_smoothing <- function(dfKalman, dfSmoothed){
   "
   Goal: Apply disturbance smoothing
@@ -130,18 +133,13 @@ disturbances_smoothing <- function(dfKalman, dfSmoothed){
 }
 
 create_ylim <- function(vector){
-<<<<<<< Updated upstream
   "
   Goal: Create min-max range from data
   Input: Vector
   Output: List c(min, max)
   "
   return(c(min(vector), max(vector)))
-=======
-  return(c(min(vector, na.rm=TRUE), max(vector, na.rm=TRUE)))
->>>>>>> Stashed changes
 }
-
 makeTS <- function(vector){
   "
   Goal: Convert vector into time series starting in 1871
@@ -151,22 +149,6 @@ makeTS <- function(vector){
   ts <- ts(vector, start=c(1871,1))
   return(ts)
 }
-
-
-one_step_ahead_forecast(data, theta, sig_eps, sig_eta, n_steps){
-  
-  
-  
-  
-  
-}
-
-
-
-
-
-
-
 
 plotOne <- function(df){
   "
@@ -198,7 +180,6 @@ plotOne <- function(df){
   abline(h=0,col="red")
   plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
 }
-<<<<<<< Updated upstream
 plotTwo <- function(df){
   "
   Goal: Plot figure 2.4
@@ -215,13 +196,19 @@ plotTwo <- function(df){
   state_error <- df$r[1:(n-1)]
   state_error_variance <- df$N[1:(n-1)]
   
-=======
->>>>>>> Stashed changes
 
-plotTwo <- function(df)
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  plot(makeTS(smooth_state), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  lines(makeTS(smooth_state_lb), col="red")
+  lines(makeTS(smooth_state_ub), col="red")
+  points(makeTS(data), col="red")
+  plot(makeTS(smooth_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
+  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  abline(h=0,col="red")
+  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
   
+}
 plotThree <- function(df){
-<<<<<<< Updated upstream
   "
   Goal: Plot figure 2.3
   Input: df_disturbance
@@ -229,26 +216,14 @@ plotThree <- function(df){
   "
 
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-=======
-  # Input: df_disturbance
-  ### Figures 2.3 (ii),(iv) plot standard deviations instead of variances
-  ### Missing first observation? Compare with book (pg 25/48)
-  n <- nrow(df)
-  observation_error <- df$eps[2:n]
-  observation_error_variance <- df$sd_eps[2:n]
-  state_error <- df$eta[2:n]
-  state_error_variance <- df$sd_eta[2:n]                                                 
->>>>>>> Stashed changes
   
-  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(observation_error), plot.type="single", ylab="", main="i", ylim=create_ylim(observation_error))
-  abline(h=0, col="red")
-  plot(makeTS(observation_error_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(observation_error_variance))
-  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
-  abline(h=0, col="red")
-  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
+  plot(makeTS(df$eps[2:99]), plot.type="single", ylab="", main="i", ylim=c(-300,300))
+  abline(h=0,col="red")
+  plot(makeTS(df$sd_eps[2:99]), plot.type="single", ylab="", main="ii", ylim=c(45,65))
+  plot(makeTS(df$eta[2:99]), plot.type="single", ylab="", main="iii", ylim=c(-40,40))
+  abline(h=0,col="red")
+  plot(makeTS(df$sd_eta[2:99]), plot.type="single", ylab="", main="iv", ylim=c(35,40))
 }
-<<<<<<< Updated upstream
 plotFive <- function(df_k, df_s){
   "
   Goal: Plot figure 2.5
@@ -256,35 +231,13 @@ plotFive <- function(df_k, df_s){
   Output: Plot 2.5
   "
 
-=======
-
-plotFive <- function(df_data, df_k, df_s){
-  #Input: df_kalman_missing_data
-  # Plot MV 2.5
-  n <- length(df_data)
-
-  filtered_state <- df_k$a[2:n]
-  filtered_variance <- df_k$P[2:n]
-
-  smoothed_state <- df_s$alpha[2:n]
-  smoothed_state_variance <- df_s$V[2:n]
-  
->>>>>>> Stashed changes
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  
-  plot(makeTS(filtered_state), col="red", plot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
-  lines(makeTS(df_data))
-  
-  plot(makeTS(filtered_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
-  
-  plot(makeTS(smoothed_state), col="red", plot.type="single", ylab="", main="iii", ylim=create_ylim(df_data))
-  lines(makeTS(df_data))
-  
-  plot(makeTS(smoothed_state_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(smoothed_state_variance))
+  plot(makeTS(df_k$a[2:99]), plot.type ="single", ylab="", main="i", ylim=c(500,1400))
+  plot(makeTS(df_k$F[2:99]), plot.type="single", ylab="", main="iv", ylim=create_ylim(df_kalman_missing_data$F[2:99]))
+  plot(makeTS(df_s$alpha[2:99]), plot.type ="single", ylab="", main="i", ylim=c(500,1400))
+  plot(makeTS(df_s$V[2:99]), plot.type="single", ylab="", main="iv", ylim=create_ylim(df_kalman_missing_data$F[2:99]))
 
-  
-}
-
+  }
 plotSix <- function(df){
   "
   Goal: Plot Forecasting 2.6
@@ -293,12 +246,7 @@ plotSix <- function(df){
   "
 
   
-  
-  
-  
-  
 }
-
 plotSeven <- function(df){
   "
   Goal: Plot Diagnostic Plots prediction errors 2.7
