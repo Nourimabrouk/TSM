@@ -1,5 +1,3 @@
-
-getwd()
 "
 Time Series Models
 Assignment 1
