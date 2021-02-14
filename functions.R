@@ -8,6 +8,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   K <- rep(0,n)   # kalman gain
   a_y <- rep(0,n) # one-step ahead estimator
   P_y <- rep(0,n) # variance of one-step ahead estimator
+  
   a[1] <- theta[1]
   P[1] <- theta[2]
   
@@ -19,11 +20,12 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       K[i] <- 0
       a_y[i] <- a[i]
       P_y[i] <- P[i]
-      a[i+1] <- a[i]
-      P[i+1] <- P[i] + sig_eta  
       
-      print(a[i])
-      
+      if(i < (n-1)){
+        a[i+1] <- a[i] + K[i]*v[i]
+        P[i+1] <- P[i] * (1-K[i]) + sig_eta  
+      }
+
     } else{
       
       K[i] <- P[i]/F[i]
@@ -64,23 +66,23 @@ smoothed_state <- function(df){
   V <- rep(0,n)     # smoothed state variance
   L <- 1 - K
   
+  V[1] = P[1]
+  
   N[n] <- 0
   r[n] <- 0
+  
   
   for (j in n:2){ #reversed loop
     if (j > 1){
       N[j-1] <- (1/F[j]) + L[j]^2 * N[j]
+      V[j] <- P[j] - P[j]^2 * N[j-1] 
     }
     if (is.nan(v[j]) || is.na(v[j])){
       r[j-1] <- r[j]
-      
-      V[j] <- P[j] - P[j]^2 * N[j-1]   
       alpha[j] <- a[j]+P[j]*r[j-1]
     }
     else {                   
       r[j-1] <- (v[j]/F[j])+L[j]*r[j]
-      
-      V[j] <- P[j] - P[j]^2 * N[j-1]   
       alpha[j] <- a[j]+P[j]*r[j-1]
     }  
   }
@@ -120,8 +122,8 @@ makeTS <- function(vector){
 
 plotOne <- function(df){
   # Input: df_kalman_filtered_state
-  n <- length(data)
-  
+  n <- nrow(df)
+
   filtered_state <- df$a[2:n]
   filtered_state_lb <- df$a_lb[2:n]
   filtered_state_ub <- df$a_ub[2:n]
@@ -147,23 +149,24 @@ plotTwo <- function(df){
   # Plot SS (2.2)
   
   # ii) en iv) lijken in de vroegste observaties niet overeen te komen met het boek (pg 22 / 45)
-  smooth_state <- df$alpha[2:99]
-  smooth_state_lb <- df$alpha_lb[2:99]
-  smooth_state_ub <- df$alpha_ub[2:99]
+  n <- nrow(df)
+  smooth_state <- df$alpha[2:n]
+  smooth_state_lb <- df$alpha_lb[2:n]
+  smooth_state_ub <- df$alpha_ub[2:n]
   
-  smooth_variance <- df$V[2:99]
-  state_error <- df$r[1:100]
-  state_error_variance <- df$N[1:100]
-  ts(smooth_state, start=c(1871, 1))
-  makeTS(smooth_state)
+  smooth_variance <- df$V[2:n]
+  state_error <- df$r[1:(n-1)]
+  state_error_variance <- df$N[1:(n-1)]
+  
+
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   plot(makeTS(smooth_state), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
   lines(makeTS(smooth_state_lb), col="red")
   lines(makeTS(smooth_state_ub), col="red")
   points(makeTS(data), col="red")
-  plot(makeTS(df$V[2:99]), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
-  plot(makeTS(df$r[1:100]), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  plot(makeTS(smooth_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
+  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
   abline(h=0,col="red")
-  plot(makeTS(df$N[1:100]), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
+  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
   
 }
