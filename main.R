@@ -1,4 +1,4 @@
-
+"
 Time Series Models
 Assignment 1
 
@@ -10,7 +10,7 @@ Nouri Mabrouk 2623401
 
 
 Main file to run the analysis
-
+"
 rm(list=ls())
 
 # Imports ----------
@@ -22,7 +22,7 @@ options(warn=-1)
 
 # Data import--------
 
-setwd(here())
+setwd(here("Data"))
 data = Nile
 
 # 2.1 Kalman Filter
@@ -70,3 +70,4 @@ plotFive(df_kalman_missing_data, df_smoothed_state_missing_data)
 # 2.7
 # 2.8
 # 2.9
+  
