@@ -28,9 +28,10 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       P_y[i] <- P[i]
       
       if(i < (n-1)){
-        a[i+1] <- a[i] + K[i]*v[i]
-        P[i+1] <- P[i] * (1-K[i]) + sig_eta  
+        a[i+1] <- a[i]
+        P[i+1] <- P[i] + sig_eta 
       }
+      
 
     } else{
       
@@ -57,6 +58,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   kalman <- data.frame(a, P, v, F, K, a_y, P_y, a_lb, a_ub)
   return(kalman) 
 }
+
 smoothed_state <- function(df){
   "
   Goal: Compute smoothed state through reverse loop
@@ -106,7 +108,9 @@ smoothed_state <- function(df){
   SmoothedState_df <- data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
   return (SmoothedState_df)
 }
+
 disturbances_smoothing <- function(dfKalman, dfSmoothed){
+  
   "
   Goal: Apply disturbance smoothing
   Input: df_kalman_filtered_state,df_smoothed_state (output of kalman, smoothedstate functions)
