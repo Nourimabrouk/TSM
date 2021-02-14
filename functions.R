@@ -110,3 +110,60 @@ disturbances_smoothing <- function(dfKalman, dfSmoothed){
   disturbance <- data.frame(eps,eta,sd_eps,sd_eta)
   return(disturbance)
 }
+create_ylim <- function(vector){
+  return(c(min(vector), max(vector)))
+}
+makeTS <- function(vector){
+  ts <- ts(vector, start=c(1871,1))
+  return(ts)
+}
+
+plotOne <- function(df){
+  # Input: df_kalman_filtered_state
+  n <- length(data)
+  
+  filtered_state <- df$a[2:n]
+  filtered_state_lb <- df$a_lb[2:n]
+  filtered_state_ub <- df$a_ub[2:n]
+  
+  filtered_variance <- df$P[2:n]
+  state_error <- df$v[2:n]
+  state_error_variance <- df$F[2:n]
+  
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  
+  plot(makeTS(filtered_state), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  lines(makeTS(filtered_state_lb), col="red")
+  lines(makeTS(filtered_state_ub), col="red")
+  points(makeTS(data))
+  
+  plot(makeTS(filtered_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
+  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  abline(h=0,col="red")
+  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
+}
+plotTwo <- function(df){
+  # input: df_smoothed_state
+  # Plot SS (2.2)
+  
+  # ii) en iv) lijken in de vroegste observaties niet overeen te komen met het boek (pg 22 / 45)
+  smooth_state <- df$alpha[2:99]
+  smooth_state_lb <- df$alpha_lb[2:99]
+  smooth_state_ub <- df$alpha_ub[2:99]
+  
+  smooth_variance <- df$V[2:99]
+  state_error <- df$r[1:100]
+  state_error_variance <- df$N[1:100]
+  ts(smooth_state, start=c(1871, 1))
+  makeTS(smooth_state)
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  plot(makeTS(smooth_state), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  lines(makeTS(smooth_state_lb), col="red")
+  lines(makeTS(smooth_state_ub), col="red")
+  points(makeTS(data), col="red")
+  plot(makeTS(df$V[2:99]), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
+  plot(makeTS(df$r[1:100]), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  abline(h=0,col="red")
+  plot(makeTS(df$N[1:100]), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
+  
+}

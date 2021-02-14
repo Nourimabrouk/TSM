@@ -1,31 +1,5 @@
-plot <- function(){
   # Plot KF (2.1)
   
-n <- length(data)
-par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-
-filtered_state <- df_kalman_filtered_state$a[2:n]
-filtered_state_lower_bound <- df_kalman_filtered_state$a_lb[2:n]
-filtered_state_upper_bound <- df_kalman_filtered_state$a_ub[2:n]
-
-filtered_variance <- df_kalman_filtered_state$P[2:n]
-state_error <- df_kalman_filtered_state$v[2:n]
-state_error_variance <- df_kalman_filtered_state$F[2:n]
-
-y_lim_one <- c(min(data), max(data))
-y_lim_two <- c(min(filtered_variance), max(filtered_variance))
-y_lim_three <- c(min(state_error), max(state_error))
-y_lim_four <- c(min(state_error_variance), max(state_error_variance))
-
-plot(ts(filtered_state,start=c(1871, 1)), plot.type="single", ylab="", main="i", ylim=y_lim_one)
-lines(ts(filtered_state_lower_bound, start=c(1871, 1)), col="red")
-lines(ts(filtered_state_upper_bound, start=c(1871, 1)), col="red")
-points(ts(data,start=c(1871, 1)))
-
-plot(ts(filtered_variance, start=c(1871, 1)), plot.type="single", ylab="", main="ii", ylim=y_lim_two)
-plot(ts(state_error, start=c(1871, 1)), plot.type="single", ylab="", main="iii", ylim=y_lim_three)
-abline(h=0,col="red")
-plot(ts(state_error_variance, start=c(1871, 1)), plot.type="single", ylab="", main="iv", ylim=y_lim_four)
 
 # Plot SS (2.2)
 
@@ -72,4 +46,4 @@ plot(ts(df_kalman_missing_data$a[2:99], start=c(1871, 1)), plot.type ="single", 
 plot(ts(df_kalman_missing_data$F[2:99], start=c(1871, 1)), plot.type="single", ylab="", main="iv", ylim=c(min(df_kalman_missing_data$F[2:99]),max(df_kalman_missing_data$F[2:99])))
 plot(ts(df_smoothed_state_missing_data$alpha[2:99], start=c(1871, 1)), plot.type ="single", ylab="", main="i", ylim=c(500,1400))
 plot(ts(df_smoothed_state_missing_data$V[2:99], start=c(1871, 1)), plot.type="single", ylab="", main="iv", ylim=c(min(df_kalman_missing_data$F[2:99]),max(df_kalman_missing_data$F[2:99])))
-}
+

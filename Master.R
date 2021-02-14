@@ -1,3 +1,4 @@
+rm(list=ls())
 "
 TSM Assignment 1
 
@@ -17,7 +18,6 @@ library(ggthemes)
 options(warn=-1)
 
 source("functions.R")
-source("plotting.R")
 
 # Data import--------
 
@@ -32,8 +32,12 @@ P_ini <- 10^7
 theta <- c(a_ini, P_ini)
 
 df_kalman_filtered_state <- kalman_filter(data, theta, sig_eps, sig_eta)
+plotOne(df_kalman_filtered_state)
+
 # Smoothed State
 df_smoothed_state <- smoothed_state(df_kalman_filtered_state)
+plotTwo(df_smoothed_state)
+
 # Disturbance Smoothing
 df_disturbance <- disturbances_smoothing(df_kalman_filtered_state, df_smoothed_state)
 
