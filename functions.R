@@ -170,3 +170,38 @@ plotTwo <- function(df){
   plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
   
 }
+plotThree <- function(df){
+  # Input: df_disturbance
+  ### Figures 2.3 (ii),(iv) plot standard deviations instead of variances
+  ### Missing first observation? Compare with book (pg 25/48)
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  
+  plot(makeTS(df$eps[2:99]), plot.type="single", ylab="", main="i", ylim=c(-300,300))
+  abline(h=0,col="red")
+  plot(makeTS(df$sd_eps[2:99]), plot.type="single", ylab="", main="ii", ylim=c(45,65))
+  plot(makeTS(df$eta[2:99]), plot.type="single", ylab="", main="iii", ylim=c(-40,40))
+  abline(h=0,col="red")
+  plot(makeTS(df$sd_eta[2:99]), plot.type="single", ylab="", main="iv", ylim=c(35,40))
+}
+plotFive <- function(df_k, df_s){
+  #Input: df_kalman_missing_data
+  # Plot MV 2.5
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  plot(makeTS(df_k$a[2:99]), plot.type ="single", ylab="", main="i", ylim=c(500,1400))
+  plot(makeTS(df_k$F[2:99]), plot.type="single", ylab="", main="iv", ylim=create_ylim(df_kalman_missing_data$F[2:99]))
+  plot(makeTS(df_s$alpha[2:99]), plot.type ="single", ylab="", main="i", ylim=c(500,1400))
+  plot(makeTS(df_s$V[2:99]), plot.type="single", ylab="", main="iv", ylim=create_ylim(df_kalman_missing_data$F[2:99]))
+
+  }
+plotSix <- function(df){
+  # Plot Forecasting 2.6
+  
+}
+plotSeven <- function(df){
+  # Plot Diagnostic Plots prediction errors 2.7
+  
+}
+plotEight <- function(df){
+  # Plot Diagnostic Plots auxilliary residuals 2.8
+  
+}
