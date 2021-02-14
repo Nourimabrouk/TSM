@@ -12,9 +12,8 @@ Nouri Mabrouk 2623401
 Main file to run the analysis
 "
 rm(list=ls())
-
+setwd(here())
 # Imports ----------
-library(tidyverse)
 library(here)
 source("functions.R")
 
@@ -22,9 +21,7 @@ options(warn=-1)
 
 # Data import--------
 
-setwd(here("Data"))
 data = Nile
-
 # 2.1 Kalman Filter
 # Initialises values
 # Applies Kalman Filter
