@@ -1,4 +1,10 @@
 kalman_filter <- function(data, theta, sig_eps, sig_eta){
+  "
+  Goal: Apply the kalman filter recursion 
+  Input: data, theta, sig_eps, sig_eta
+  Output: DF 100x9 - data.frame(a, P, v, F, K, a_y, P_y, a_lb, a_ub)
+  
+  "
   y <- as.matrix(data)
   n <- nrow(y)
   a <- rep(0,n)   # filter estimator
@@ -52,6 +58,12 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   return(kalman) 
 }
 smoothed_state <- function(df){
+  "
+  Goal: Compute smoothed state through reverse loop
+  Input: df_kalman_filtered_state (output of kalman filter function)
+  Output: DF 100x6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
+  
+  "
   a <- df$a
   P <- df$P
   v <- df$v
@@ -95,6 +107,13 @@ smoothed_state <- function(df){
   return (SmoothedState_df)
 }
 disturbances_smoothing <- function(dfKalman, dfSmoothed){
+  "
+  Goal: Apply disturbance smoothing
+  Input: df_kalman_filtered_state,df_smoothed_state (output of kalman, smoothedstate functions)
+  Output: DF 100x4 - data.frame(eps,eta,sd_eps,sd_eta)
+  
+  
+  "
   F <- dfKalman$F
   V <- dfKalman$v
   K <- dfKalman$K
@@ -112,16 +131,33 @@ disturbances_smoothing <- function(dfKalman, dfSmoothed){
   disturbance <- data.frame(eps,eta,sd_eps,sd_eta)
   return(disturbance)
 }
+
 create_ylim <- function(vector){
+  "
+  Goal: Create min-max range from data
+  Input: Vector
+  Output: List c(min, max)
+  "
   return(c(min(vector), max(vector)))
 }
 makeTS <- function(vector){
+  "
+  Goal: Convert vector into time series starting in 1871
+  Input: Vector
+  Output: Time series
+  "
   ts <- ts(vector, start=c(1871,1))
   return(ts)
 }
 
 plotOne <- function(df){
-  # Input: df_kalman_filtered_state
+  "
+  Goal: Plot figure 2.1
+  Input: df_kalman_filtered_state
+  Output: Plot 2.1
+  
+  "
+  # Input: 
   n <- nrow(df)
 
   filtered_state <- df$a[2:n]
@@ -145,10 +181,12 @@ plotOne <- function(df){
   plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
 }
 plotTwo <- function(df){
-  # input: df_smoothed_state
-  # Plot SS (2.2)
+  "
+  Goal: Plot figure 2.4
+  Input: df_smoothed_state
+  Output: Plot 2.4
+  "
   
-  # ii) en iv) lijken in de vroegste observaties niet overeen te komen met het boek (pg 22 / 45)
   n <- nrow(df)
   smooth_state <- df$alpha[2:n]
   smooth_state_lb <- df$alpha_lb[2:n]
@@ -171,9 +209,12 @@ plotTwo <- function(df){
   
 }
 plotThree <- function(df){
-  # Input: df_disturbance
-  ### Figures 2.3 (ii),(iv) plot standard deviations instead of variances
-  ### Missing first observation? Compare with book (pg 25/48)
+  "
+  Goal: Plot figure 2.3
+  Input: df_disturbance
+  Output: Plot 2.3 
+  "
+
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
   plot(makeTS(df$eps[2:99]), plot.type="single", ylab="", main="i", ylim=c(-300,300))
@@ -184,8 +225,12 @@ plotThree <- function(df){
   plot(makeTS(df$sd_eta[2:99]), plot.type="single", ylab="", main="iv", ylim=c(35,40))
 }
 plotFive <- function(df_k, df_s){
-  #Input: df_kalman_missing_data
-  # Plot MV 2.5
+  "
+  Goal: Plot figure 2.5
+  Input: df_kalman_missing_data
+  Output: Plot 2.5
+  "
+
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   plot(makeTS(df_k$a[2:99]), plot.type ="single", ylab="", main="i", ylim=c(500,1400))
   plot(makeTS(df_k$F[2:99]), plot.type="single", ylab="", main="iv", ylim=create_ylim(df_kalman_missing_data$F[2:99]))
@@ -194,14 +239,29 @@ plotFive <- function(df_k, df_s){
 
   }
 plotSix <- function(df){
-  # Plot Forecasting 2.6
+  "
+  Goal: Plot Forecasting 2.6
+  Input: 
+  Output: Plot 2.6
+  "
+
   
 }
 plotSeven <- function(df){
-  # Plot Diagnostic Plots prediction errors 2.7
+  "
+  Goal: Plot Diagnostic Plots prediction errors 2.7
+  Input: 
+  Output: Plot 2.7
+  "
+
   
 }
 plotEight <- function(df){
-  # Plot Diagnostic Plots auxilliary residuals 2.8
+  "
+  Goal: Plot Diagnostic Plots auxilliary residuals 2.8
+  Input: 
+  Output: Plot 2.8
+  "
+
   
 }
