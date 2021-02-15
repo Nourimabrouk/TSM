@@ -27,7 +27,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       a_y[i] <- a[i]
       P_y[i] <- P[i]
       
-
+      
       if(i < (n-1)){
         a[i+1] <- a[i]
         P[i+1] <- P[i] + sig_eta 
@@ -35,8 +35,8 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       
       a[i+1] <- a[i]
       P[i+1] <- P[i] + sig_eta  
-
-
+      
+      
     } else{
       
       K[i] <- P[i]/F[i]
@@ -148,18 +148,50 @@ create_ylim <- function(vector){
   "
   return(c(min(vector, na.rm=TRUE), max(vector, na.rm=TRUE)))
 }
-makeTS <- function(vector){
+
+makeTS <- function(vector,c){
   "
   Goal: Convert vector into time series starting in 1871
   Input: Vector
   Output: Time series
   "
-  ts <- ts(vector, start=c(1871,1))
+  if(c==1){
+    ts <- ts(vector, start=c(1871,1))
+  } else {
+    ts <-ts(vector,start=c(1970,1))
+  }
   return(ts)
 }
+
 one_step_ahead_forecast <- function(data, theta, sig_eps, sig_eta, n_steps){
   return(data)
 }
+
+forecasting <- function(dfkalman){
+  steps <- 30
+  n <- nrow(dfkalman)
+  yearWithForecast <- seq(n+steps)
+  
+  a_forecast <- rep(0,steps)
+  P_forecast <- rep(0,steps)
+  F_forecast <- rep(0,steps)
+  
+  a_forecast[1] <- array(dfkalman$a)[n]
+  P_forecast[1] <- array(dfkalman$P)[n] + sig_eta
+  F_forecast[1] <- P_forecast[1] + sig_eps
+  
+  for (j in 1:(steps-1) ) { 
+    a_forecast[j+1] <- a_forecast[j]
+    P_forecast[j+1] <- P_forecast[j] + sig_eta
+    F_forecast[j+1] <- P_forecast[j] + sig_eps
+  }
+  a_lb_forecast <- a_forecast - 0.675*sqrt(F_forecast)
+  a_ub_forecast <- a_forecast + 0.675*sqrt(F_forecast)
+  
+  forecast <- data.frame(a_forecast, P_forecast, F_forecast, a_lb_forecast,a_ub_forecast)
+  return(forecast)
+}
+
 plotOne <- function(df){
   "
   Goal: Plot figure 2.1
@@ -169,7 +201,7 @@ plotOne <- function(df){
   "
   # Input: 
   n <- nrow(df)
-
+  
   filtered_state <- df$a[2:n]
   filtered_state_lb <- df$a_lb[2:n]
   filtered_state_ub <- df$a_ub[2:n]
@@ -180,16 +212,17 @@ plotOne <- function(df){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(filtered_state), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
-  lines(makeTS(filtered_state_lb), col="red")
-  lines(makeTS(filtered_state_ub), col="red")
-  points(makeTS(data))
+  plot(makeTS(filtered_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  lines(makeTS(filtered_state_lb,1), col="red")
+  lines(makeTS(filtered_state_ub,1), col="red")
+  points(makeTS(data,1))
   
-  plot(makeTS(filtered_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
-  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
+  plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
   abline(h=0,col="red")
-  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
+  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
 }
+
 plotTwo <- function(df){
   "
   Goal: Plot figure 2.4
@@ -206,18 +239,18 @@ plotTwo <- function(df){
   state_error <- df$r[1:(n-1)]
   state_error_variance <- df$N[1:(n-1)]
   
-
-  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(smooth_state), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
-  lines(makeTS(smooth_state_lb), col="red")
-  lines(makeTS(smooth_state_ub), col="red")
-  points(makeTS(data), col="red")
-  plot(makeTS(smooth_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
-  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
-  abline(h=0,col="red")
-  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))
   
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  plot(makeTS(smooth_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  lines(makeTS(smooth_state_lb,1), col="red")
+  lines(makeTS(smooth_state_ub,1), col="red")
+  points(makeTS(data,1), col="red")
+  plot(makeTS(smooth_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
+  plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  abline(h=0,col="red")
+  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))  
 }
+
 plotThree <- function(df){
   "
   Goal: Plot figure 2.3
@@ -232,54 +265,75 @@ plotThree <- function(df){
   
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(observation_error), plot.type="single", ylab="", main="i", ylim=create_ylim(observation_error))
+  plot(makeTS(observation_error,1), plot.type="single", ylab="", main="i", ylim=create_ylim(observation_error))
   abline(h=0, col="red")
-  plot(makeTS(observation_error_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(observation_error_variance))
-  plot(makeTS(state_error), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
+  plot(makeTS(observation_error_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(observation_error_variance))
+  plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
   abline(h=0, col="red")
-  plot(makeTS(state_error_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))}
+  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))}
 plotFive <- function(df_data, df_k, df_s){
   "
   Goal: Plot figure 2.5
   Input: df_data, df_kalman_missing_data, df_smoothed_missing_data
   Output: Plot 2.5
   "
-    n <- length(df_data)
-    
-    filtered_state <- df_k$a[2:n]
-    filtered_variance <- df_k$P[2:n]
-    
-    smoothed_state <- df_s$alpha[2:n]
-    smoothed_state_variance <- df_s$V[2:n]
-    
-    par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  n <- length(df_data)
+  
+  filtered_state <- df_k$a[2:n]
+  filtered_variance <- df_k$P[2:n]
+  
+  smoothed_state <- df_s$alpha[2:n]
+  smoothed_state_variance <- df_s$V[2:n]
+  
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  
+  plot(makeTS(filtered_state,1), col="red", plot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
+  lines(makeTS(df_data,1))
+  
+  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
+  
+  plot(makeTS(smoothed_state,1), col="red", plot.type="single", ylab="", main="iii", ylim=create_ylim(df_data))
+  lines(makeTS(df_data,1))
+  
+  plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(smoothed_state_variance))
+}
 
-    plot(makeTS(filtered_state), col="red", plot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
-    lines(makeTS(df_data))
-    
-    plot(makeTS(filtered_variance), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
-    
-    plot(makeTS(smoothed_state), col="red", plot.type="single", ylab="", main="iii", ylim=create_ylim(df_data))
-    lines(makeTS(df_data))
-    
-    plot(makeTS(smoothed_state_variance), plot.type="single", ylab="", main="iv", ylim=create_ylim(smoothed_state_variance))
-  }
-plotSix <- function(df){
+plotSix <- function(df,dv){
   "
   Goal: Plot Forecasting 2.6
-  Input: 
+  Input: df_kalman_filtered_state, df_forecasting
   Output: Plot 2.6
   "
+  m <- nrow(df)
+  n <- nrow(dv)
 
+  forecast_state <- c(df$a[2:m],dv$a_forecast[1:n])
+  forecast_state_lb <- dv$a_lb_forecast[1:n]
+  forecast_state_ub <- dv$a_ub_forecast[1:n]
   
+  forecast_variance <- c(df$P[2:m],dv$P_forecast[1:n])
+  forecast_observation <- c(df$a[2:m],dv$a_forecast[1:n])
+  forecast_error_variance <- c(df$F[2:m],dv$F_forecast[1:n])
+  
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  
+  plot(makeTS(forecast_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  lines(makeTS(forecast_state_lb,2), col="red")
+  lines(makeTS(forecast_state_ub,2), col="red")
+  points(makeTS(data,1))
+  
+  plot(makeTS(forecast_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(forecast_variance))
+  plot(makeTS(forecast_observation,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))
+  plot(makeTS(forecast_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(forecast_error_variance)) 
 }
+
 plotSeven <- function(df){
   "
   Goal: Plot Diagnostic Plots prediction errors 2.7
   Input: 
   Output: Plot 2.7
   "
-
+  
   
 }
 plotEight <- function(df){
@@ -288,6 +342,7 @@ plotEight <- function(df){
   Input: 
   Output: Plot 2.8
   "
-
+  
   
 }
+
