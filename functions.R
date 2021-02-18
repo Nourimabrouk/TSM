@@ -349,24 +349,53 @@ plotSix <- function(df_data, df_filtered, df_forecasts){
   plot(makeTS(forecast_observation, 1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))
   plot(makeTS(forecast_error_variance, 1), plot.type="single", ylab="", main="iv", ylim=create_ylim(forecast_error_variance)) 
 }
-
 plotSeven <- function(df){
   "
   Goal: Plot Diagnostic Plots prediction errors 2.7
   Input: 
   Output: Plot 2.7
   "
+  n <- nrow(df)
   
+  stv <- DF_st_err['stv']
   
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  
+  temp <- makeTS(stv,1)
+  plot(temp, col = "blue",lwd = 2,xlab="",ylab="", main ="i")
+  abline(h=0, col = "grey")
+  hist(stv, prob=T, col = "grey", main = "ii", xlab ="",ylab="")
+  lines(density(stv[-1]), col = "blue",lwd = 2)
+  qqnorm(c(stv), col="blue",main = "iii")
+  qqline(c(stv),col="red")
+  acf(stv[-1], ,main="iv")
 }
-
 plotEight <- function(df){
   "
   Goal: Plot Diagnostic Plots auxilliary residuals 2.8
   Input: 
   Output: Plot 2.8
   "
+  n <- nrow(df)
   
+  stv <- DF_st_err['stv']
+  u_star <- makeTS(DF_st_smooth_res['u_star'],1)
+  r_star <- makeTS(DF_st_smooth_res['r_star'],1)
   
+  par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
+  
+  plot(u_star, col = "blue",lwd = 2,xlab="",ylab="",
+       main="i")
+  abline(h=0, col = "grey")
+  hist(u_star, prob=T, col = "grey", ,ylim=c(0,0.3),
+       main="ii",xlab="",ylab="")
+  lines(density(u_star), col = "blue",lwd = 2)
+  
+  plot(r_star, col = "blue",lwd = 2,xlab="",ylab="" ,main ="iii")
+  abline(h=0, col = "grey")
+  hist(r_star, prob=T, col = "grey", main = "iv",
+       ylim=c(0,1.2),xlab="",ylab="")
+  lines(density(r_star), col = "blue",lwd = 2)
 }
+
 
