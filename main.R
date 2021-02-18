@@ -21,7 +21,7 @@ options(warn=-1)
 
 # Data import--------
 
-data = Nile
+df_data = Nile
 # 2.1 Kalman Filter
 # Initialises values
 # Applies Kalman Filter
@@ -33,13 +33,13 @@ a_ini <- 0
 P_ini <- 10^7
 theta <- c(a_ini, P_ini)
 
-df_kalman_filtered_state <- kalman_filter(data, theta, sig_eps, sig_eta)
+df_kalman_filtered_state <- kalman_filter(df_data, theta, sig_eps, sig_eta)
 plotOne(df_kalman_filtered_state)
 
 # 2.2  Smoothed State 
 # Creates figure 2.2
 
-df_smoothed_state <- smoothed_state(df_kalman_filtered_state)
+df_smoothed_state <- smoothed_state(df_data, df_kalman_filtered_state)
 plotTwo(df_smoothed_state)
 
 # 2.3 Disturbance Smoothing
@@ -52,23 +52,23 @@ plotThree(df_disturbance)
 # Creates missing data
 # Runs Kalman filter, state smoother, and disturbance smoother
 # Creates figure 2.5
-
+source("functions.R")
 missing_values_index <- c(21:40, 61:80)
-data_missing <- data
-data_missing[missing_values_index] <- NA
+df_data_missing <- df_data
+df_data_missing[missing_values_index] <- NA
 
-df_kalman_missing_data <- kalman_filter(data_missing, theta, sig_eps, sig_eta)
-df_smoothed_state_missing_data <- smoothed_state(df_kalman_missing_data)
+df_kalman_missing_data <- kalman_filter(df_data_missing, theta, sig_eps, sig_eta)
+df_smoothed_state_missing_data <- smoothed_state(df_data_missing, df_kalman_missing_data)
 df_disturbance_missing_data <- disturbances_smoothing(df_kalman_missing_data, df_smoothed_state_missing_data)
 
-plotFive(data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
+plotFive(df_data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
 
 # 2.6
 # Forecasting
 # Creates figure 2.6
 n_steps <- 30
-df_forecasted <- one_step_forecasting(df_data, df_kalman_filtered_state, n_steps)
-plotSix(df_kalman_filtered_state, df_forecasted)
+df_forecasts <- one_step_forecasting(df_kalman_filtered_state, n_steps)
+plotSix(df_data, df_kalman_filtered_state, df_forecasts)
 
 # 2.7
 

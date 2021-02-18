@@ -19,38 +19,34 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   P[1] <- theta[2]
   
   for (i in 1:n) {
-    v[i] <- y[i] - a[i]
     F[i] <- P[i] + sig_eps
+    
+    v[i] <- y[i] - a[i]
     
     if(is.nan(y[i]) || is.na(y[i])){
       K[i] <- 0
       a_y[i] <- a[i]
       P_y[i] <- P[i]
       
-      
-      if(i < (n-1)){
+      if(i< (n-1)){
         a[i+1] <- a[i]
-        P[i+1] <- P[i] + sig_eta 
+        P[i+1] <- P[i] + sig_eta
       }
       
-      a[i+1] <- a[i]
-      P[i+1] <- P[i] + sig_eta  
-      
-      
     } else{
-      
       K[i] <- P[i]/F[i]
       a_y[i] <- a[i] + K[i]*v[i]
-      P_y[i]  = P[i]*(1-K[i])
+      P_y[i]  = P[i]*(1 - K[i])
       
       if(i < (n-1)){
         a[i+1] <- a[i] + K[i]*v[i]
-        P[i+1] <- P[i] * (1-K[i]) + sig_eta  
+        P[i+1] <- P[i] * (1-K[i]) + sig_eta
       }
+
     }
     
     a[n] <- a[n-1] + K[n-1]*v[n-1]
-    P[n] <- P[n-1] * (1-K[n-1]) + sig_eta  
+    P[n] <- P[n-1]*(1 - K[n-1]) + sig_eta 
     
     
   }
@@ -60,21 +56,23 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   a_ub <- a+1.645*sqrt(P)
   
   kalman <- data.frame(a, P, v, F, K, a_y, P_y, a_lb, a_ub)
+  
   return(kalman) 
 }
 
-smoothed_state <- function(df){
+smoothed_state <- function(df_data, df_kf){
   "
   Goal: Compute smoothed state through reverse loop
-  Input: df_kalman_filtered_state (output of kalman filter function)
+  Input: df_kf (output of kalman filter function)
   Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
   
   "
-  a <- df$a
-  P <- df$P
-  v <- df$v
-  F <- df$F
-  K <- df$K
+  y <- as.matrix(df_data)
+  a <- df_kf$a
+  P <- df_kf$P
+  v <- df_kf$v
+  F <- df_kf$F
+  K <- df_kf$K
   
   
   n <- length(v)
@@ -84,32 +82,35 @@ smoothed_state <- function(df){
   V <- rep(0,n)     # smoothed state variance
   L <- 1 - K
   
-  V[1] = P[1]
+  V[1] <- P[1]
+  alpha[1] <- a[1]
   
   N[n] <- 0
   r[n] <- 0
   
   
   for (j in n:2){ #reversed loop
-    if (j > 1){
-      N[j-1] <- (1/F[j]) + L[j]^2 * N[j]
-      V[j] <- P[j] - P[j]^2 * N[j-1] 
-    }
-    if (is.nan(v[j]) || is.na(v[j])){
+    N[j-1] <- (1/F[j]) + L[j]^2 * N[j]
+    V[j] <- P[j] - P[j]^2 * N[j-1] 
+
+    if (is.nan(y[j]) || is.na(y[j])){
       r[j-1] <- r[j]
-      alpha[j] <- a[j] + P[j]*r[j-1]
     }
     else {                   
-      r[j-1] <- (v[j]/F[j])+L[j]*r[j]
-      alpha[j] <- a[j]+P[j]*r[j-1]
-    }  
+      r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
+    } 
+    
+  alpha[j] <- a[j] + P[j]*r[j-1]
+  
   }
   
+
   #upper and lower bounds of alpha
   alpha_lb <- alpha - 1.645*sqrt(V)     
   alpha_ub <- alpha + 1.645*sqrt(V)
   
   SmoothedState_df <- data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
+  
   return (SmoothedState_df)
 }
 
@@ -119,9 +120,8 @@ disturbances_smoothing <- function(dfKalman, dfSmoothed){
   Goal: Apply disturbance smoothing
   Input: df_kalman_filtered_state,df_smoothed_state (output of kalman, smoothedstate functions)
   Output: DF 100x4 - data.frame(eps,eta,sd_eps,sd_eta)
-  
-  
   "
+  
   F <- dfKalman$F
   V <- dfKalman$v
   K <- dfKalman$K
@@ -136,7 +136,8 @@ disturbances_smoothing <- function(dfKalman, dfSmoothed){
   var_eta <- sig_eta - sig_eta^2*N
   sd_eps <- sqrt(var_eps)
   sd_eta <- sqrt(var_eta)
-  disturbance <- data.frame(eps,eta,sd_eps,sd_eta)
+  disturbance <- data.frame(eps, eta, sd_eps, sd_eta)
+  
   return(disturbance)
 }
 
@@ -156,15 +157,15 @@ makeTS <- function(vector,c){
   Output: Time series
   "
   if(c==1){
-    ts <- ts(vector, start=c(1871,1))
+    ts <- ts(vector, start=c(1871, 1))
   } else {
-    ts <-ts(vector,start=c(1970,1))
+    ts <-ts(vector,start=c(1970, 1))
   }
   return(ts)
 }
 
 one_step_forecasting <- function(dfkalman, j_steps){
-  j_steps <- 30
+
   n <- nrow(dfkalman)
   yearWithForecast <- seq(n + j_steps)
   
@@ -202,13 +203,13 @@ prediction_errors <- function(v,F){
   return(st_error)
 }
 
-stand_smooth_residuals <- function(F,v,K,r,N){
+stand_smooth_residuals <- function(F, v, K, r, N){
   u <- 1/F*v-K*r
   D <- 1/F+K^2*N
   u_star <-u/sqrt(D)
   r_star <- r/sqrt(N)
   
-  st_residuals <- data.frame(u_star,r_star)
+  st_residuals <- data.frame(u_star, r_star)
   return(st_residuals)
 }
 
@@ -232,10 +233,10 @@ plotOne <- function(df){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(filtered_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  plot(makeTS(filtered_state,1), lot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
   lines(makeTS(filtered_state_lb,1), col="red")
   lines(makeTS(filtered_state_ub,1), col="red")
-  points(makeTS(data,1))
+  points(makeTS(df_data, 1), pch=20)
   
   plot(makeTS(filtered_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(filtered_variance))
   plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
@@ -261,10 +262,11 @@ plotTwo <- function(df){
   
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(smooth_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  plot(makeTS(smooth_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
   lines(makeTS(smooth_state_lb,1), col="red")
   lines(makeTS(smooth_state_ub,1), col="red")
-  points(makeTS(data,1), col="red")
+  points(makeTS(df_data,1), pch=20)
+  
   plot(makeTS(smooth_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
   plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
   abline(h=0,col="red")
@@ -319,33 +321,33 @@ plotFive <- function(df_data, df_k, df_s){
   plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(smoothed_state_variance))
 }
 
-plotSix <- function(df_data, df_filtered, df_forecasted){
+plotSix <- function(df_data, df_filtered, df_forecasts){
   "
   Goal: Plot Forecasting 2.6
   Input: df_kalman_filtered_state, df_forecasting
   Output: Plot 2.6
   "
   n <- nrow(df_filtered)
-  j <- nrow(df_forecasted)
+  j <- nrow(df_forecasts)
 
-  forecast_state <- c(df_filtered$a[2:n], df_forecasted$a_forecast[1:j])
-  forecast_state_lb <- df_forecasted$a_lb_forecast[1:j]
-  forecast_state_ub <- df_forecasted$a_ub_forecast[1:j]
+  forecast_state <- c(df_filtered$a[2:n], df_forecasts$a_forecast[1:j])
+  forecast_state_lb <- df_forecasts$a_lb_forecast[1:j]
+  forecast_state_ub <- df_forecasts$a_ub_forecast[1:j]
   
-  forecast_variance <- c(df_filtered$P[2:n], df_forecasted$P_forecast[1:j])
-  forecast_observation <- c(df_filtered$a[2:n], df_forecasted$a_forecast[1:j])
-  forecast_error_variance <- c(df_filtered$F[2:n], df_forecasted$F_forecast[1:j])
+  forecast_variance <- c(df_filtered$P[2:n], df_forecasts$P_forecast[1:j])
+  forecast_observation <- c(df_filtered$a[2:n], df_forecasts$a_forecast[1:j])
+  forecast_error_variance <- c(df_filtered$F[2:n], df_forecasts$F_forecast[1:j])
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
   plot(makeTS(forecast_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
   lines(makeTS(forecast_state_lb,2), col="red")
   lines(makeTS(forecast_state_ub,2), col="red")
-  points(makeTS(df_data, 1))
+  points(makeTS(df_data, 1), pch=20)
   
-  plot(makeTS(forecast_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(forecast_variance))
-  plot(makeTS(forecast_observation,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))
-  plot(makeTS(forecast_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(forecast_error_variance)) 
+  plot(makeTS(forecast_variance, 1), plot.type="single", ylab="", main="ii", ylim=create_ylim(forecast_variance))
+  plot(makeTS(forecast_observation, 1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))
+  plot(makeTS(forecast_error_variance, 1), plot.type="single", ylab="", main="iv", ylim=create_ylim(forecast_error_variance)) 
 }
 
 plotSeven <- function(df){
