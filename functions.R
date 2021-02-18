@@ -178,15 +178,15 @@ forecasting <- function(dfkalman, j_steps){
   
   a_forecast[1] <- array(dfkalman$a)[n]
   P_forecast[1] <- array(dfkalman$P)[n] + sig_eta
-  F_forecast[1] <- P_forecast[1] + sig_eps
   
-  print(sig_eps)
-  for (j in 1:(j_steps-1) ) { 
+  for (j in 1:(j_steps-1)) { 
+    F_forecast[j] <- P_forecast[j] + sig_eps
     a_forecast[j+1] <- a_forecast[j]
     P_forecast[j+1] <- P_forecast[j] + sig_eta
-    F_forecast[j+1] <- P_forecast[j+1] + sig_eps
-    print(F_forecast)
   }
+  
+  F_forecast[j_steps] <- P_forecast[j_steps] + sig_eps
+
   a_lb_forecast <- a_forecast - 0.675*sqrt(F_forecast)
   a_ub_forecast <- a_forecast + 0.675*sqrt(F_forecast)
   
