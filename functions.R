@@ -179,6 +179,7 @@ one_step_forecasting <- function(dfkalman, j_steps){
     F_forecast[j] <- P_forecast[j] + sig_eps
     a_forecast[j+1] <- a_forecast[j]
     P_forecast[j+1] <- P_forecast[j] + sig_eta
+
   }
   
   F_forecast[j_steps] <- P_forecast[j_steps] + sig_eps
@@ -188,6 +189,27 @@ one_step_forecasting <- function(dfkalman, j_steps){
   
   forecast <- data.frame(a_forecast, P_forecast, F_forecast, a_lb_forecast, a_ub_forecast)
   return(forecast)
+}
+
+prediction_errors <- function(v,F){
+  n <- length(v)
+  sfe <- rep(0,n) # Standardised forecast error
+  
+  for (i in 1: n) {
+    sfe[i] <- v[i]/sqrt(F[i])
+  }
+  st_error <- data.frame(sfe,v,F)
+  return(st_error)
+}
+
+stand_smooth_residuals <- function(F,v,K,r,N){
+  u <- 1/F*v-K*r
+  D <- 1/F+K^2*N
+  u_star <-u/sqrt(D)
+  r_star <- r/sqrt(N)
+  
+  st_residuals <- data.frame(u_star,r_star)
+  return(st_residuals)
 }
 
 plotOne <- function(df){
