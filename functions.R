@@ -2,7 +2,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   "
   Goal: Apply the kalman filter recursion 
   Input: data, theta, sig_eps, sig_eta
-  Output: DF 100x9 - data.frame(a, P, v, F, K, a_y, P_y, a_lb, a_ub)
+  Output: DF nx9 - data.frame(a, P, v, F, K, a_y, P_y, a_lb, a_ub)
   
   "
   y <- as.matrix(data)
@@ -67,7 +67,7 @@ smoothed_state <- function(df){
   "
   Goal: Compute smoothed state through reverse loop
   Input: df_kalman_filtered_state (output of kalman filter function)
-  Output: DF 100x6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
+  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
   
   "
   a <- df$a
@@ -163,11 +163,7 @@ makeTS <- function(vector,c){
   return(ts)
 }
 
-one_step_ahead_forecast <- function(data, theta, sig_eps, sig_eta, n_steps){
-  return(data)
-}
-
-forecasting <- function(dfkalman, j_steps){
+one_step_forecasting <- function(dfkalman, j_steps){
   j_steps <- 30
   n <- nrow(dfkalman)
   yearWithForecast <- seq(n + j_steps)
@@ -301,29 +297,29 @@ plotFive <- function(df_data, df_k, df_s){
   plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(smoothed_state_variance))
 }
 
-plotSix <- function(df,dv){
+plotSix <- function(df_filtered, df_forecasted){
   "
   Goal: Plot Forecasting 2.6
   Input: df_kalman_filtered_state, df_forecasting
   Output: Plot 2.6
   "
-  m <- nrow(df)
-  j <- nrow(dv)
+  n <- nrow(df_filtered)
+  j <- nrow(df_forecasted)
 
-  forecast_state <- c(df$a[2:m],dv$a_forecast[1:j])
-  forecast_state_lb <- dv$a_lb_forecast[1:j]
-  forecast_state_ub <- dv$a_ub_forecast[1:j]
+  forecast_state <- c(df_filtered$a[2:n], df_forecasted$a_forecast[1:j])
+  forecast_state_lb <- df_forecasted$a_lb_forecast[1:j]
+  forecast_state_ub <- df_forecasted$a_ub_forecast[1:j]
   
-  forecast_variance <- c(df$P[2:m], dv$P_forecast[1:j])
-  forecast_observation <- c(df$a[2:m], dv$a_forecast[1:j])
-  forecast_error_variance <- c(df$F[2:m], dv$F_forecast[1:j])
+  forecast_variance <- c(df_filtered$P[2:n], df_forecasted$P_forecast[1:j])
+  forecast_observation <- c(df_filtered$a[2:n], df_forecasted$a_forecast[1:j])
+  forecast_error_variance <- c(df_filtered$F[2:n], df_forecasted$F_forecast[1:j])
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
   plot(makeTS(forecast_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
   lines(makeTS(forecast_state_lb,2), col="red")
   lines(makeTS(forecast_state_ub,2), col="red")
-  points(makeTS(data,1))
+  points(makeTS(data, 1))
   
   plot(makeTS(forecast_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(forecast_variance))
   plot(makeTS(forecast_observation,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))

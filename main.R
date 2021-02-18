@@ -68,8 +68,9 @@ plotFive(data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
 # Creates figure 2.6
 source("functions.R")
 n_steps <- 30
-df_forecasting <- forecasting(df_kalman_filtered_state, n_steps)
-plotSix(df_kalman_filtered_state, df_forecasting)
+df_forecasted <- one_step_forecasting(df_data, df_kalman_filtered_state, n_steps)
+plotSix(df_kalman_filtered_state, df_forecasted)
 
 # 2.7
+
 # 2.8
