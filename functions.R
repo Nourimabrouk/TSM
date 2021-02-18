@@ -167,28 +167,30 @@ one_step_ahead_forecast <- function(data, theta, sig_eps, sig_eta, n_steps){
   return(data)
 }
 
-forecasting <- function(dfkalman){
-  steps <- 30
+forecasting <- function(dfkalman, j_steps){
+  j_steps <- 30
   n <- nrow(dfkalman)
-  yearWithForecast <- seq(n+steps)
+  yearWithForecast <- seq(n + j_steps)
   
-  a_forecast <- rep(0,steps)
-  P_forecast <- rep(0,steps)
-  F_forecast <- rep(0,steps)
+  a_forecast <- rep(0, j_steps)
+  P_forecast <- rep(0, j_steps)
+  F_forecast <- rep(0, j_steps)
   
   a_forecast[1] <- array(dfkalman$a)[n]
   P_forecast[1] <- array(dfkalman$P)[n] + sig_eta
   F_forecast[1] <- P_forecast[1] + sig_eps
   
-  for (j in 1:(steps-1) ) { 
+  print(sig_eps)
+  for (j in 1:(j_steps-1) ) { 
     a_forecast[j+1] <- a_forecast[j]
     P_forecast[j+1] <- P_forecast[j] + sig_eta
-    F_forecast[j+1] <- P_forecast[j] + sig_eps
+    F_forecast[j+1] <- P_forecast[j+1] + sig_eps
+    print(F_forecast)
   }
   a_lb_forecast <- a_forecast - 0.675*sqrt(F_forecast)
   a_ub_forecast <- a_forecast + 0.675*sqrt(F_forecast)
   
-  forecast <- data.frame(a_forecast, P_forecast, F_forecast, a_lb_forecast,a_ub_forecast)
+  forecast <- data.frame(a_forecast, P_forecast, F_forecast, a_lb_forecast, a_ub_forecast)
   return(forecast)
 }
 
@@ -271,6 +273,7 @@ plotThree <- function(df){
   plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
   abline(h=0, col="red")
   plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))}
+
 plotFive <- function(df_data, df_k, df_s){
   "
   Goal: Plot figure 2.5
@@ -305,15 +308,15 @@ plotSix <- function(df,dv){
   Output: Plot 2.6
   "
   m <- nrow(df)
-  n <- nrow(dv)
+  j <- nrow(dv)
 
-  forecast_state <- c(df$a[2:m],dv$a_forecast[1:n])
-  forecast_state_lb <- dv$a_lb_forecast[1:n]
-  forecast_state_ub <- dv$a_ub_forecast[1:n]
+  forecast_state <- c(df$a[2:m],dv$a_forecast[1:j])
+  forecast_state_lb <- dv$a_lb_forecast[1:j]
+  forecast_state_ub <- dv$a_ub_forecast[1:j]
   
-  forecast_variance <- c(df$P[2:m],dv$P_forecast[1:n])
-  forecast_observation <- c(df$a[2:m],dv$a_forecast[1:n])
-  forecast_error_variance <- c(df$F[2:m],dv$F_forecast[1:n])
+  forecast_variance <- c(df$P[2:m], dv$P_forecast[1:j])
+  forecast_observation <- c(df$a[2:m], dv$a_forecast[1:j])
+  forecast_error_variance <- c(df$F[2:m], dv$F_forecast[1:j])
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
