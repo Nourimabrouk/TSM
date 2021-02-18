@@ -297,7 +297,7 @@ plotFive <- function(df_data, df_k, df_s){
   plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(smoothed_state_variance))
 }
 
-plotSix <- function(df_filtered, df_forecasted){
+plotSix <- function(df_data, df_filtered, df_forecasted){
   "
   Goal: Plot Forecasting 2.6
   Input: df_kalman_filtered_state, df_forecasting
@@ -316,10 +316,10 @@ plotSix <- function(df_filtered, df_forecasted){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(forecast_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(data))
+  plot(makeTS(forecast_state,1), plot.type="single", ylab="", main="i", ylim=create_ylim(df_data))
   lines(makeTS(forecast_state_lb,2), col="red")
   lines(makeTS(forecast_state_ub,2), col="red")
-  points(makeTS(data, 1))
+  points(makeTS(df_data, 1))
   
   plot(makeTS(forecast_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(forecast_variance))
   plot(makeTS(forecast_observation,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))
@@ -335,6 +335,7 @@ plotSeven <- function(df){
   
   
 }
+
 plotEight <- function(df){
   "
   Goal: Plot Diagnostic Plots auxilliary residuals 2.8
