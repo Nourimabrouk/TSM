@@ -20,7 +20,6 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
   
   for (i in 1:n) {
     F[i] <- P[i] + sig_eps
-    
     v[i] <- y[i] - a[i]
     
     if(is.nan(y[i]) || is.na(y[i])){
@@ -28,7 +27,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       a_y[i] <- a[i]
       P_y[i] <- P[i]
       
-      if(i< (n-1)){
+      if(i < (n-1)){
         a[i+1] <- a[i]
         P[i+1] <- P[i] + sig_eta
       }
@@ -40,7 +39,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
       
       if(i < (n-1)){
         a[i+1] <- a[i] + K[i]*v[i]
-        P[i+1] <- P[i] * (1-K[i]) + sig_eta
+        P[i+1] <- P[i]*(1 - K[i]) + sig_eta
       }
 
     }
@@ -76,35 +75,40 @@ smoothed_state <- function(df_data, df_kf){
   
   
   n <- length(v)
-  alpha <- rep(0,n) # smoothed stated
-  N <- rep(0,n)     # smoothed state error variance
-  r <- rep(0,n)
-  V <- rep(0,n)     # smoothed state variance
-  L <- 1 - K
-  
-  V[1] <- P[1]
-  alpha[1] <- a[1]
-  
+  alpha <- rep(0, n) # smoothed stated
+  N <- rep(0, n)     # smoothed state error variance
+  r <- rep(0, n)
+  V <- rep(0, n)     # smoothed state variance
+  L <- 1-K
+
   N[n] <- 0
   r[n] <- 0
   
-  
-  for (j in n:2){ #reversed loop
-    N[j-1] <- (1/F[j]) + L[j]^2 * N[j]
-    V[j] <- P[j] - P[j]^2 * N[j-1] 
-
-    if (is.nan(y[j]) || is.na(y[j])){
-      r[j-1] <- r[j]
-    }
-    else {                   
-      r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
-    } 
-    
-  alpha[j] <- a[j] + P[j]*r[j-1]
-  
+  for (j in n:2){ #backward recursion
+      N[j-1] <- (1/F[j]) + (L[j]^2) * N[j]
+      V[j] <- P[j] - (P[j]^2)*N[j-1] 
+      
+      if (is.nan(y[j]) || is.na(y[j])){
+        N[j-1] <- N[j]
+        V[j] <- P[j] - (P[j]^2)*N[j-1] 
+        
+        r[j-1] <- r[j]
+      }
+      else {                   
+        r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
+      }
+    alpha[j] <- a[j] + P[j]*r[j-1]
   }
   
-
+  N[1] <- (1/F[2]) + (L[2]^2) * N[2]
+  N_0 <- (1/F[1]) + (L[1]^2) * N[1]
+  
+  V[1] <- P[1] - (P[1]^2)*N_0 
+  
+  r_0 <- (v[1]/F[1]) + L[1]*r[1]
+  alpha[1] <- a[1] + P[1]*r_0
+  
+  
   #upper and lower bounds of alpha
   alpha_lb <- alpha - 1.645*sqrt(V)     
   alpha_ub <- alpha + 1.645*sqrt(V)
@@ -256,7 +260,7 @@ plotTwo <- function(df){
   smooth_state_lb <- df$alpha_lb[2:n]
   smooth_state_ub <- df$alpha_ub[2:n]
   
-  smooth_variance <- df$V[2:n]
+  smooth_variance <- df$V[1:n]
   state_error <- df$r[1:(n-1)]
   state_error_variance <- df$N[1:(n-1)]
   
@@ -267,7 +271,7 @@ plotTwo <- function(df){
   lines(makeTS(smooth_state_ub,1), col="red")
   points(makeTS(df_data,1), pch=20)
   
-  plot(makeTS(smooth_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance))
+  plot(makeTS(smooth_variance,1), plot.type="single", ylab="", main="ii", ylim=create_ylim(smooth_variance[2:n]))
   plot(makeTS(state_error,1), plot.type="single", ylab="", main="iii", ylim=create_ylim(state_error))
   abline(h=0,col="red")
   plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main="iv", ylim=create_ylim(state_error_variance))  
@@ -280,10 +284,10 @@ plotThree <- function(df){
   Output: Plot 2.3 
   "
   n <- nrow(df)
-  observation_error <- df$eps[2:n]
-  observation_error_variance <- df$sd_eps[2:n]
-  state_error <- df$eta[2:n]
-  state_error_variance <- df$sd_eta[2:n]     
+  observation_error <- df$eps[1:n]
+  observation_error_variance <- df$sd_eps[1:n]
+  state_error <- df$eta[1:n]
+  state_error_variance <- df$sd_eta[1:n]     
   
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
@@ -306,7 +310,7 @@ plotFive <- function(df_data, df_k, df_s){
   filtered_variance <- df_k$P[2:n]
   
   smoothed_state <- df_s$alpha[2:n]
-  smoothed_state_variance <- df_s$V[2:n]
+  smoothed_state_variance <- df_s$V[1:n]
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
@@ -349,6 +353,7 @@ plotSix <- function(df_data, df_filtered, df_forecasts){
   plot(makeTS(forecast_observation, 1), plot.type="single", ylab="", main="iii", ylim=create_ylim(forecast_observation))
   plot(makeTS(forecast_error_variance, 1), plot.type="single", ylab="", main="iv", ylim=create_ylim(forecast_error_variance)) 
 }
+
 plotSeven <- function(df){
   "
   Goal: Plot Diagnostic Plots prediction errors 2.7

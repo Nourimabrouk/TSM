@@ -38,7 +38,6 @@ plotOne(df_kalman_filtered_state)
 
 # 2.2  Smoothed State 
 # Creates figure 2.2
-
 df_smoothed_state <- smoothed_state(df_data, df_kalman_filtered_state)
 plotTwo(df_smoothed_state)
 
@@ -52,7 +51,6 @@ plotThree(df_disturbance)
 # Creates missing data
 # Runs Kalman filter, state smoother, and disturbance smoother
 # Creates figure 2.5
-source("functions.R")
 missing_values_index <- c(21:40, 61:80)
 df_data_missing <- df_data
 df_data_missing[missing_values_index] <- NA
