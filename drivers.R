@@ -23,8 +23,8 @@ library(tidyverse)
 options(warn=-1)
 
 # Data import--------
-ts_cars = read_delim(here('Data', 'UKdriversKSI.dat'), delim = "\n") %>% pull(1)
-
+ts_cars = read_delim(here('Data', 'UKdriversKSI.dat'), delim = "\n") %>% pull(1) %>% as_tibble() %>% slice(93:192) %>% ts()
+#ts_cars <- Nile
 # DEFINE theta, sig_eps, sig_eta
 phi_ini <- 0
 param_hat <- kalman_parameter_optimizer(ts_cars, phi_ini)
@@ -59,11 +59,11 @@ df_st_residuals <- stand_smooth_residuals(df_kalman_filtered_state$F,df_kalman_f
                                           df_smoothed_state$N)
 
 
-plotOne(df_kalman_filtered_state)
-plotTwo(df_smoothed_state)
+plotOne(ts_cars, df_kalman_filtered_state)
+plotTwo(ts_cars, df_smoothed_state)
 plotThree(df_disturbance)
 plotFive(df_data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
 plotSix(ts_cars, df_kalman_filtered_state, df_forecasts)
 plotSeven(df_predictionerrors)
-plotEight(df_st_residuals, df_predictionerrors)  
+plotEight(df_st_residuals, df_predictionerrors)   
 
