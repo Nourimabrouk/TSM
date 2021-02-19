@@ -73,7 +73,6 @@ smoothed_state <- function(df_data, df_kf){
   F <- df_kf$F
   K <- df_kf$K
   
-  
   n <- length(v)
   alpha <- rep(0, n) # smoothed stated
   N <- rep(0, n)     # smoothed state error variance

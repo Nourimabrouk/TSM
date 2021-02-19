@@ -23,28 +23,26 @@ library(tidyverse)
 options(warn=-1)
 
 # Data import--------
-
-ts_flights <- read_csv(here('Data', 'total-number-of-flights.csv')) %>% 
-  select(2) %>% slice(32:131) %>% ts()
-#ts_flights <- Nile
-
+ts_cars = read_delim(here('Data', 'UKdriversKSI.dat'), delim = "\n") %>% pull(1) %>% as_tibble() %>% slice(93:192) %>% ts()
+#ts_cars <- Nile
 # DEFINE theta, sig_eps, sig_eta
 phi_ini <- 0
-param_hat <- kalman_parameter_optimizer(ts_flights, phi_ini)
+param_hat <- kalman_parameter_optimizer(ts_cars, phi_ini)
 
 sig_eps <- param_hat[2]
 sig_eta <- param_hat[3]
 
 a_ini <- 0 
-P_ini <- 10^5
+P_ini <- 10^7
 theta <- c(a_ini, P_ini)
 
-df_kalman_filtered_state <- kalman_filter(ts_flights, theta, sig_eps, sig_eta)
-df_smoothed_state <- smoothed_state(ts_flights, df_kalman_filtered_state)
+
+df_kalman_filtered_state <- kalman_filter(ts_cars, theta, sig_eps, sig_eta)
+df_smoothed_state <- smoothed_state(ts_cars, df_kalman_filtered_state)
 df_disturbance <- disturbances_smoothing(df_kalman_filtered_state, df_smoothed_state)
 
 missing_values_index <- c(21:40, 61:80)
-df_data_missing <- ts_flights
+df_data_missing <- ts_cars
 df_data_missing[missing_values_index] <- NA
 
 df_kalman_missing_data <- kalman_filter(df_data_missing, theta, sig_eps, sig_eta)
@@ -61,10 +59,11 @@ df_st_residuals <- stand_smooth_residuals(df_kalman_filtered_state$F,df_kalman_f
                                           df_smoothed_state$N)
 
 
-plotOne(ts_flights, df_kalman_filtered_state)
-plotTwo(ts_flights, df_smoothed_state)
+plotOne(ts_cars, df_kalman_filtered_state)
+plotTwo(ts_cars, df_smoothed_state)
 plotThree(df_disturbance)
 plotFive(df_data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
-plotSix(ts_flights, df_kalman_filtered_state, df_forecasts)
+plotSix(ts_cars, df_kalman_filtered_state, df_forecasts)
 plotSeven(df_predictionerrors)
-plotEight(df_st_residuals, df_predictionerrors)  
+plotEight(df_st_residuals, df_predictionerrors)   
+
