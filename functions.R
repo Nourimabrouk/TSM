@@ -367,13 +367,13 @@ plotSeven <- function(df){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(temp, col = "blue",lwd = 2,xlab="",ylab="", main ="i")
-  abline(h=0, col = "grey")
-  hist(stv, prob=T, col = "grey", main = "ii", xlab ="",ylab="")
-  lines(density(stv[-1]), col = "blue",lwd = 2)
+  plot(temp, xlab="",ylab="", main ="i")
+  abline(h=0, col = "red")
+  hist(stv, prob=T, col = "grey", main = "ii", xlab ="", ylab="")
+  lines(density(stv[-1]), col = "grey", lwd = 2)
   qqnorm(c(stv), col="blue",main = "iii")
   qqline(c(stv),col="red")
-  acf(stv[-1], ,main="iv")
+  acf(stv[-1], main="iv")
 }
 plotEight <- function(df_st_residuals, df_7output){
   "
@@ -384,22 +384,19 @@ plotEight <- function(df_st_residuals, df_7output){
   length <- nrow(df_st_residuals)
   
   stv <- df_7output[,1]
-  u_star <- makeTS(df_st_residuals[,1],1)
-  r_star <- makeTS(df_st_residuals[,2],1)
+  u_star <- makeTS(df_st_residuals[,1], 1)
+  r_star <- makeTS(df_st_residuals[,2], 1)
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(u_star, col = "blue",lwd = 2,xlab="",ylab="",
-       main="i")
-  abline(h=0, col = "grey")
-  hist(df_st_residuals[,1], prob=T, col = "grey", ,ylim=c(0,0.3),
-       main="ii",xlab="",ylab="", na.rm=TRUE)
-  lines(density(u_star, na.rm=TRUE), col = "blue",lwd = 2, na.rm=TRUE)
   
-  plot(r_star, col = "blue",lwd = 2,xlab="",ylab="" ,main ="iii")
+  plot(u_star, lwd = 1, xlab="",ylab="", main="i")
   abline(h=0, col = "grey")
-  hist(df_st_residuals[,2], prob=T, col = "grey", main = "iv",
-       ylim=c(0,1.2),xlab="",ylab="", na.rm=TRUE)
-  lines(density(r_star, na.rm=TRUE), col = "blue",lwd = 2, na.rm=TRUE)
+  hist(df_st_residuals[,1], prob=T, col = "grey", main="ii", xlab="", ylab="", na.rm=TRUE)
+  lines(density(u_star, na.rm=TRUE), lwd = 2, na.rm=TRUE)
+  plot(r_star,lwd = 1, xlab="",ylab="" ,main ="iii")
+  abline(h=0, col = "grey")
+  hist(df_st_residuals[,2], prob=T, col = "grey",  main = "iv", xlab="",ylab="", na.rm=TRUE)
+  lines(density(r_star, na.rm=TRUE), lwd = 2, na.rm=TRUE)
 }
 
 
