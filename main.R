@@ -23,7 +23,8 @@ options(warn=-1)
 
 # Data import--------
 
-df_flights = read_csv(here('Data', 'total-number-of-flights.csv'))
+df_flights = read_csv(here('Data', 'total-number-of-flights.csv')) %>% 
+  select(2) %>% slice(100:199)
 df_Nile = Nile
 # 2.1 Kalman Filter
 # Initialises values
