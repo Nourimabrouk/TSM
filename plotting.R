@@ -27,7 +27,7 @@ plotOne <- function(df_data, df_kf){
   
   plot(makeTS(filtered_variance, 1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
   plot(makeTS(state_error, 1), plot.type="single", ylab="", xlab="", main="(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
-  abline(h=0,col="grey")
+  abline(h=0,col="red")
   plot(makeTS(state_error_variance, 1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))
 }
 
@@ -58,7 +58,7 @@ plotTwo <- function(df_data, df_sm){
   
   plot(makeTS(smooth_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smooth_variance[2:n]))
   plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
-  abline(h=0,col="grey")
+  abline(h=0,col="red")
   plot(makeTS(state_error_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))  
 }
 
@@ -77,10 +77,10 @@ plotThree <- function(df){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   plot(makeTS(observation_error,1), plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(observation_error))
-  abline(h=0, col="grey")
+  abline(h=0, col="red")
   plot(makeTS(observation_error_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(observation_error_variance))
   plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
-  abline(h=0, col="grey")
+  abline(h=0, col="red")
   plot(makeTS(state_error_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))}
 
 plotFive <- function(df_data, df_k, df_s){
@@ -130,8 +130,8 @@ plotSix <- function(df_data, df_filtered, df_forecasts){
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
   plot(makeTS(forecast_state,1), plot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_data))
-  lines(makeTS(forecast_state_lb,2), col="grey")
-  lines(makeTS(forecast_state_ub,2), col="grey")
+  lines(makeTS(forecast_state_lb,2), col="red")
+  lines(makeTS(forecast_state_ub,2), col="red")
   points(makeTS(df_data, 1), pch=20)
   
   plot(makeTS(forecast_variance, 1), plot.type="single", ylab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(forecast_variance))

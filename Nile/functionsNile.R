@@ -35,7 +35,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
     } else{
       K[i] <- P[i]/F[i]
       a_y[i] <- a[i] + K[i]*v[i]
-      P_y[i]  = P[i]*(1 - K[i])
+      P_y[i] <- P[i]*(1 - K[i])
       
       if(i < (n-1)){
         a[i+1] <- a[i] + K[i]*v[i]
@@ -72,7 +72,6 @@ smoothed_state <- function(df_data, df_kf){
   v <- df_kf$v
   F <- df_kf$F
   K <- df_kf$K
-  
   
   n <- length(v)
   alpha <- rep(0, n) # smoothed stated
@@ -228,7 +227,7 @@ kalman_parameter_optimizer <- function(df_data, phi_ini){
   
   q_hat <- exp(results$par)
   kalman_star <- optimal_kalman_filter(df_data, q_hat)
-  sig_eps_hat <- calcualte_sig_eps_hat(kalman_star)
+  sig_eps_hat <- calculate_sig_eps_hat(kalman_star)
   sig_eta_hat <- q_hat*sig_eps_hat
   
   theta_hat <- c(q_hat, sig_eps_hat, sig_eta_hat)
@@ -280,7 +279,7 @@ optimal_kalman_filter <- function(df_data, q){
   
 }
 
-calcualte_sig_eps_hat <- function(kalman_star){
+calculate_sig_eps_hat <- function(kalman_star){
   n <- nrow(kalman_star)
   
   F_star <- kalman_star$F_star
@@ -300,7 +299,7 @@ gauss_loglik_dc <- function(theta, data){
   
   kalman_star <- optimal_kalman_filter(data, q)
   F_star <- kalman_star$F_star
-  sig_eps <- calcualte_sig_eps_hat(kalman_star)
+  sig_eps <- calculate_sig_eps_hat(kalman_star)
   
   loglik <- -(n/2)*log(2*pi) - ((n-1)/2) - ((n-1)/2)*(log(sig_eps)) - (1/2)*sum(log(F_star))
 
