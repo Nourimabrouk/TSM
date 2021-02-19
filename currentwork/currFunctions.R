@@ -161,7 +161,9 @@ makeTS <- function(vector, c){
   "
   if(c==1){
     ts <- ts(vector, start=c(1871, 1))
-  } else{
+  } else if(c==2){
+    ts <- ts(vector, start=c(1, 1))
+  }else{
     ts <-ts(vector, start=c(1970, 1))
   }
   return(ts)
@@ -215,6 +217,12 @@ stand_smooth_residuals <- function(F, v, K, r, N){
   df_st_residuals <- data.frame(u_star, r_star)
   return(df_st_residuals)
 }
+
+
+
+
+########### PARAMETER ESTIMATION ###################
+
 kalman_parameter_optimizer <- function(df_data, phi_ini){
 
   results <- optim(par=phi_ini, fn=function(par) - gauss_loglik_dc(par, df_data), method='BFGS')

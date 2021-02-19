@@ -12,6 +12,14 @@ Nouri Mabrouk 2623401
 This code applies CH 2 of the book including the figures presented to our own time series
 "
 
+
+"
+RUN INSTRUCTIONS:
+install.packages here, lubridate, tidyverse
+run files: Functions.R, Plotting.R
+run Main.R
+"
+
 rm(list=ls())
 setwd(here())
 # Imports ----------
@@ -21,14 +29,12 @@ source("Plotting.R")
 library(tidyverse)
 library(lubridate)
 
-
-
 options(warn=-1)
 
 # Data import--------
 ts_flights
 
-df_flights <- read_csv(here('Data', 'total-number-of-flights.csv'))
+df_flights <- read_csv(here('total-number-of-flights.csv'))
 
 dates = df_flights %>% slice(32:131) %>% select(1) %>% transmute(date = as.Date(DateTime, format="%d/%m/%y")) %>% pull()
 

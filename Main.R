@@ -13,16 +13,15 @@ This code applies CH 2 of the book including the figures presented to our own ti
 "
 
 rm(list=ls())
-setwd(here())
 # Imports ----------
+
 library(here)
 source("Functions.R")
 source("Plotting.R")
 library(tidyverse)
 library(lubridate)
 
-
-
+setwd(here())
 options(warn=-1)
 
 # Data import--------

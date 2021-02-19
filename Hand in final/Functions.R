@@ -215,6 +215,12 @@ stand_smooth_residuals <- function(F, v, K, r, N){
   df_st_residuals <- data.frame(u_star, r_star)
   return(df_st_residuals)
 }
+
+
+
+
+########### PARAMETER ESTIMATION ###################
+
 kalman_parameter_optimizer <- function(df_data, phi_ini){
 
   results <- optim(par=phi_ini, fn=function(par) - gauss_loglik_dc(par, df_data), method='BFGS')
