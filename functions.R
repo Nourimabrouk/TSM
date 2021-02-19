@@ -213,8 +213,8 @@ stand_smooth_residuals <- function(F, v, K, r, N){
   u_star <-u/sqrt(D)
   r_star <- r/sqrt(N)
   
-  st_residuals <- data.frame(u_star, r_star)
-  return(st_residuals)
+  df_st_residuals <- data.frame(u_star, r_star)
+  return(df_st_residuals)
 }
 
 plotOne <- function(df){
@@ -361,12 +361,12 @@ plotSeven <- function(df){
   Output: Plot 2.7
   "
   n <- nrow(df)
-  
-  stv <- DF_st_err['stv']
+
+  stv <- df[,1]
+  temp <- makeTS(stv,1)
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  temp <- makeTS(stv,1)
   plot(temp, col = "blue",lwd = 2,xlab="",ylab="", main ="i")
   abline(h=0, col = "grey")
   hist(stv, prob=T, col = "grey", main = "ii", xlab ="",ylab="")
@@ -375,32 +375,31 @@ plotSeven <- function(df){
   qqline(c(stv),col="red")
   acf(stv[-1], ,main="iv")
 }
-plotEight <- function(df){
+plotEight <- function(df_st_residuals, df_7output){
   "
   Goal: Plot Diagnostic Plots auxilliary residuals 2.8
   Input: 
   Output: Plot 2.8
   "
-  n <- nrow(df)
+  length <- nrow(df_st_residuals)
   
-  stv <- DF_st_err['stv']
-  u_star <- makeTS(DF_st_smooth_res['u_star'],1)
-  r_star <- makeTS(DF_st_smooth_res['r_star'],1)
+  stv <- df_7output[,1]
+  u_star <- makeTS(df_st_residuals[,1],1)
+  r_star <- makeTS(df_st_residuals[,2],1)
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  
   plot(u_star, col = "blue",lwd = 2,xlab="",ylab="",
        main="i")
   abline(h=0, col = "grey")
-  hist(u_star, prob=T, col = "grey", ,ylim=c(0,0.3),
-       main="ii",xlab="",ylab="")
-  lines(density(u_star), col = "blue",lwd = 2)
+  hist(df_st_residuals[,1], prob=T, col = "grey", ,ylim=c(0,0.3),
+       main="ii",xlab="",ylab="", na.rm=TRUE)
+  lines(density(u_star, na.rm=TRUE), col = "blue",lwd = 2, na.rm=TRUE)
   
   plot(r_star, col = "blue",lwd = 2,xlab="",ylab="" ,main ="iii")
   abline(h=0, col = "grey")
-  hist(r_star, prob=T, col = "grey", main = "iv",
-       ylim=c(0,1.2),xlab="",ylab="")
-  lines(density(r_star), col = "blue",lwd = 2)
+  hist(df_st_residuals[,2], prob=T, col = "grey", main = "iv",
+       ylim=c(0,1.2),xlab="",ylab="", na.rm=TRUE)
+  lines(density(r_star, na.rm=TRUE), col = "blue",lwd = 2, na.rm=TRUE)
 }
 
 

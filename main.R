@@ -74,7 +74,7 @@ plotSix(df_data, df_kalman_filtered_state, df_forecasts)
 # Creates figure 2.7
 
 df_predictionerrors <- prediction_errors(df_kalman_filtered_state$v, df_kalman_filtered_state$F)
-#plotSeven()
+plotSeven(df_predictionerrors)
 
 
 # 2.8
@@ -83,4 +83,5 @@ df_predictionerrors <- prediction_errors(df_kalman_filtered_state$v, df_kalman_f
 df_st_residuals <- stand_smooth_residuals(df_kalman_filtered_state$F,df_kalman_filtered_state$v,
                                           df_kalman_filtered_state$K, df_smoothed_state$r,
                                           df_smoothed_state$N)
-#plotEight()  
+
+plotEight(df_st_residuals,df_predictionerrors)  
