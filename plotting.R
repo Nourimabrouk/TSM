@@ -19,15 +19,15 @@ plotOne <- function(df){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(filtered_state,1), lot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(filtered_state,1), lot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
   lines(makeTS(filtered_state_lb,1), col="grey")
   lines(makeTS(filtered_state_ub,1), col="grey")
   points(makeTS(df_Nile, 1), pch=20)
   
-  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
-  plot(makeTS(state_error,1), plot.type="single", ylab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
+  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
+  plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
   abline(h=0,col="grey")
-  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))
+  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))
 }
 
 plotTwo <- function(df){
@@ -48,15 +48,15 @@ plotTwo <- function(df){
   
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(smooth_state,1), plot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(smooth_state,1), plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
   lines(makeTS(smooth_state_lb,1), col="grey")
   lines(makeTS(smooth_state_ub,1), col="grey")
   points(makeTS(df_Nile,1), pch=20)
   
-  plot(makeTS(smooth_variance,1), plot.type="single", ylab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smooth_variance[2:n]))
-  plot(makeTS(state_error,1), plot.type="single", ylab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
+  plot(makeTS(smooth_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smooth_variance[2:n]))
+  plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
   abline(h=0,col="grey")
-  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))  
+  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))  
 }
 
 plotThree <- function(df){
@@ -73,12 +73,12 @@ plotThree <- function(df){
   
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(observation_error,1), plot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(observation_error))
+  plot(makeTS(observation_error,1), plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(observation_error))
   abline(h=0, col="grey")
-  plot(makeTS(observation_error_variance,1), plot.type="single", ylab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(observation_error_variance))
-  plot(makeTS(state_error,1), plot.type="single", ylab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
+  plot(makeTS(observation_error_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(observation_error_variance))
+  plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
   abline(h=0, col="grey")
-  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))}
+  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))}
 
 plotFive <- function(df_data, df_k, df_s){
   "
@@ -96,15 +96,15 @@ plotFive <- function(df_data, df_k, df_s){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(filtered_state,1), col="grey", plot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(filtered_state,1), col="grey", plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
   lines(makeTS(df_Nile,1))
   
-  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
+  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
   
-  plot(makeTS(smoothed_state,1), col="grey", plot.type="single", ylab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(smoothed_state,1), col="grey", plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
   lines(makeTS(df_Nile,1))
   
-  plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smoothed_state_variance))
+  plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smoothed_state_variance))
 }
 
 plotSix <- function(df_data, df_filtered, df_forecasts){
