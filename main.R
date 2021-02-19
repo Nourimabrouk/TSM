@@ -25,7 +25,7 @@ options(warn=-1)
 
 df_flights = read_csv(here('Data', 'total-number-of-flights.csv')) %>% 
   select(2) %>% slice(100:199)
-df_Nile = Nile
+ts_Nile = Nile
 # 2.1 Kalman Filter
 # Initialises values
 # Applies Kalman Filter
@@ -37,12 +37,12 @@ a_ini <- 0
 P_ini <- 10^7
 theta <- c(a_ini, P_ini)
 
-df_kalman_filtered_state <- kalman_filter(df_Nile, theta, sig_eps, sig_eta)
+df_kalman_filtered_state <- kalman_filter(ts_Nile, theta, sig_eps, sig_eta)
 plotOne(df_kalman_filtered_state)
 
 # 2.2  Smoothed State 
 # Creates figure 2.2
-df_smoothed_state <- smoothed_state(df_Nile, df_kalman_filtered_state)
+df_smoothed_state <- smoothed_state(ts_Nile, df_kalman_filtered_state)
 plotTwo(df_smoothed_state)
 
 # 2.3 Disturbance Smoothing
@@ -56,7 +56,7 @@ plotThree(df_disturbance)
 # Runs Kalman filter, state smoother, and disturbance smoother
 # Creates figure 2.5
 missing_values_index <- c(21:40, 61:80)
-df_data_missing <- df_Nile
+df_data_missing <- ts_Nile
 df_data_missing[missing_values_index] <- NA
 
 df_kalman_missing_data <- kalman_filter(df_data_missing, theta, sig_eps, sig_eta)
@@ -70,7 +70,7 @@ plotFive(df_data_missing, df_kalman_missing_data, df_smoothed_state_missing_data
 # Creates figure 2.6
 n_steps <- 30
 df_forecasts <- one_step_forecasting(df_kalman_filtered_state, n_steps)
-plotSix(df_Nile, df_kalman_filtered_state, df_forecasts)
+plotSix(ts_Nile, df_kalman_filtered_state, df_forecasts)
 
 # 2.7
 

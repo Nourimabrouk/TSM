@@ -19,10 +19,10 @@ plotOne <- function(df){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(filtered_state,1), lot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(filtered_state,1), lot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(ts_Nile))
   lines(makeTS(filtered_state_lb,1), col="grey")
   lines(makeTS(filtered_state_ub,1), col="grey")
-  points(makeTS(df_Nile, 1), pch=20)
+  points(makeTS(ts_Nile, 1), pch=20)
   
   plot(makeTS(filtered_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
   plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
@@ -48,10 +48,10 @@ plotTwo <- function(df){
   
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
-  plot(makeTS(smooth_state,1), plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(smooth_state,1), plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(ts_Nile))
   lines(makeTS(smooth_state_lb,1), col="grey")
   lines(makeTS(smooth_state_ub,1), col="grey")
-  points(makeTS(df_Nile,1), pch=20)
+  points(makeTS(ts_Nile,1), pch=20)
   
   plot(makeTS(smooth_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smooth_variance[2:n]))
   plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
@@ -96,13 +96,13 @@ plotFive <- function(df_data, df_k, df_s){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(filtered_state,1), col="grey", plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
-  lines(makeTS(df_Nile,1))
+  plot(makeTS(filtered_state,1), col="grey", plot.type="single", ylab="", xlab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(ts_Nile))
+  lines(makeTS(ts_Nile,1))
   
   plot(makeTS(filtered_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
   
-  plot(makeTS(smoothed_state,1), col="grey", plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
-  lines(makeTS(df_Nile,1))
+  plot(makeTS(smoothed_state,1), col="grey", plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(ts_Nile))
+  lines(makeTS(ts_Nile,1))
   
   plot(makeTS(smoothed_state_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(smoothed_state_variance))
 }
@@ -126,10 +126,10 @@ plotSix <- function(df_data, df_filtered, df_forecasts){
   
   par(mfrow=c(2,2),mar=c(4.1,4.1,1.1,2.1))
   
-  plot(makeTS(forecast_state,1), plot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(df_Nile))
+  plot(makeTS(forecast_state,1), plot.type="single", ylab="", main = "(i)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(ts_Nile))
   lines(makeTS(forecast_state_lb,2), col="grey")
   lines(makeTS(forecast_state_ub,2), col="grey")
-  points(makeTS(df_Nile, 1), pch=20)
+  points(makeTS(ts_Nile, 1), pch=20)
   
   plot(makeTS(forecast_variance, 1), plot.type="single", ylab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(forecast_variance))
   plot(makeTS(forecast_observation, 1), plot.type="single", ylab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(forecast_observation))
