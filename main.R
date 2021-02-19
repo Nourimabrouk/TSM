@@ -89,3 +89,26 @@ df_st_residuals <- stand_smooth_residuals(df_kalman_filtered_state$F,df_kalman_f
                                           df_smoothed_state$N)
 
 plotEight(df_st_residuals,df_predictionerrors)  
+
+# Param optimization
+phi_ini <- 0
+parameter_estimation <- kalman_parameter_optimizer(df_data, phi_ini)
+q_hat <- exp(parameter_estimation$par)
+
+kalman_star <- optimal_kalman_filter(df_data, q_hat)
+sig_eps_hat <- calcualte_sig_eps_hat(kalman_star)
+sig_eta_hat <- q_hat*sig_eps_hat
+
+theta_hat <- c(q_hat, sig_eps_hat, sig_eta_hat)
+
+cat("The parameter estimates are:")
+round(theta_hat, 4)
+
+cat("The log-likelihood value is:")
+parameter_estimation$value
+
+cat("iterations:")
+parameter_estimation$counts[1]
+
+cat("Exit flag:")
+parameter_estimation$convergence # zero indicates succesfull optimization
