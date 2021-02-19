@@ -219,6 +219,7 @@ stand_smooth_residuals <- function(F, v, K, r, N){
 
 
 
+
 ########### PARAMETER ESTIMATION ###################
 
 kalman_parameter_optimizer <- function(df_data, phi_ini){
@@ -476,5 +477,6 @@ plotEight <- function(df_st_residuals, df_7output){
   hist(df_st_residuals[,2], prob=T, col = "grey",  main = "iv", xlab="",ylab="", na.rm=TRUE)
   lines(density(r_star, na.rm=TRUE), lwd = 2, na.rm=TRUE)
 }
+
 
 
