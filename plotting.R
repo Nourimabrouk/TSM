@@ -156,7 +156,8 @@ plotSeven <- function(df){
   qqnorm(c(stv),main = "(iii)",font.main=1, cex.main=.75, adj = 0, pch = 1)
   qqline(c(stv))
   
-  plot(acf(stv[-c(1,2)], lag.max = 10,plot=F), xlim=c(1,10), ylim=c(-1,1),type="h", ci = 0, main = "(iv)",font.main=1, cex.main=.75, adj = 0)
+  plot(acf(stv, lag.max = 10,plot=F), xlim=c(1,10), ylim=c(-1,1),ci = 0)
+  title("(iv)", cex.main = .75, font.main =1, adj = 0)
 }
 plotEight <- function(df_st_residuals, df_7output){
   "
