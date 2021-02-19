@@ -35,7 +35,7 @@ kalman_filter <- function(data, theta, sig_eps, sig_eta){
     } else{
       K[i] <- P[i]/F[i]
       a_y[i] <- a[i] + K[i]*v[i]
-      P_y[i]  = P[i]*(1 - K[i])
+      P_y[i] <- P[i]*(1 - K[i])
       
       if(i < (n-1)){
         a[i+1] <- a[i] + K[i]*v[i]

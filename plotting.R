@@ -25,10 +25,10 @@ plotOne <- function(df){
   lines(makeTS(filtered_state_ub,1), col="red")
   points(makeTS(y, 1), pch=20)
   
-  plot(makeTS(filtered_variance,1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
-  plot(makeTS(state_error,1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
+  plot(makeTS(filtered_variance, 1), plot.type="single", ylab="", xlab="", main = "(ii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(filtered_variance))
+  plot(makeTS(state_error, 1), plot.type="single", ylab="", xlab="", main = "(iii)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error))
   abline(h=0,col="grey")
-  plot(makeTS(state_error_variance,1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))
+  plot(makeTS(state_error_variance, 1), plot.type="single", ylab="", xlab="", main = "(iv)",font.main=1, cex.main=.75, adj = 0, ylim=create_ylim(state_error_variance))
 }
 
 plotTwo <- function(df){

@@ -36,7 +36,7 @@ sig_eps <- param_hat[2]
 sig_eta <- param_hat[3]
 
 a_ini <- 0 
-P_ini <- 10^7
+P_ini <- 10^10
 theta <- c(a_ini, P_ini)
 
 
