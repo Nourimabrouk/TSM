@@ -154,7 +154,7 @@ create_ylim <- function(vector){
   return(c(min(vector, na.rm=TRUE), max(vector, na.rm=TRUE)))
 }
 
-makeTS <- function(vector,c){
+makeTS <- function(vector, c){
   "
   Goal: Convert vector into time series starting in 1871
   Input: Vector
@@ -163,7 +163,7 @@ makeTS <- function(vector,c){
   if(c==1){
     ts <- ts(vector, start=c(1871, 1))
   } else {
-    ts <-ts(vector,start=c(1970, 1))
+    ts <-ts(vector, start=c(1970, 1))
   }
   return(ts)
 }
@@ -225,8 +225,27 @@ stand_smooth_residuals <- function(F, v, K, r, N){
 kalman_parameter_optimizer <- function(df_data, phi_ini){
 
   results <- optim(par=phi_ini, fn=function(par) - gauss_loglik_dc(par, df_data), method='BFGS')
+  
+  q_hat <- exp(results$par)
+  kalman_star <- optimal_kalman_filter(df_data, q_hat)
+  sig_eps_hat <- calcualte_sig_eps_hat(kalman_star)
+  sig_eta_hat <- q_hat*sig_eps_hat
+  
+  theta_hat <- c(q_hat, sig_eps_hat, sig_eta_hat)
+  
+  print("The parameter estimates are:")
+  print(round(theta_hat, 4))
+  
+  print("The log-likelihood value is:")
+  print(results$value)
+  
+  print("iterations:")
+  print(results$counts[1])
+  
+  cat("Exit flag:")
+  print(results$convergence) # zero indicates succesfull optimization
 
-  return(results)
+  return(theta_hat)
   
 }
 

@@ -25,9 +25,20 @@ options(warn=-1)
 # Data import--------
 
 ts_flights = read_csv(here('Data', 'total-number-of-flights.csv')) %>% 
-  select(2) %>% slice(100:199) %>% ts()
+  select(2) %>% slice(32:131) %>% ts()
+
 
 # DEFINE theta, sig_eps, sig_eta
+phi_ini <- 0
+param_hat <- kalman_parameter_optimizer(ts_flights, phi_ini)
+
+sig_eps <- param_hat[2]
+sig_eta <- param_hat[3]
+
+a_ini <- 0 
+P_ini <- 10^7
+theta <- c(a_ini, P_ini)
+
 
 df_kalman_filtered_state <- kalman_filter(ts_flights, theta, sig_eps, sig_eta)
 df_smoothed_state <- smoothed_state(ts_flights, df_kalman_filtered_state)
@@ -57,4 +68,4 @@ plotThree(df_disturbance)
 plotFive(df_data_missing, df_kalman_missing_data, df_smoothed_state_missing_data)
 plotSix(ts_flights, df_kalman_filtered_state, df_forecasts)
 plotSeven(df_predictionerrors)
-plotEight(df_st_residuals,df_predictionerrors)  
+plotEight(df_st_residuals, df_predictionerrors)  
