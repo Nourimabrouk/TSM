@@ -217,6 +217,84 @@ stand_smooth_residuals <- function(F, v, K, r, N){
   return(df_st_residuals)
 }
 
+
+
+########### PARAMETER ESTIMATION ###################
+
+kalman_parameter_optimizer <- function(df_data, phi_ini){
+
+  results <- optim(par=phi_ini, fn=function(par) - gauss_loglik_dc(par, df_data), method='BFGS')
+
+  return(results)
+  
+}
+
+
+optimal_kalman_filter <- function(df_data, q){
+  y <- as.matrix(df_data)
+  n <- length(y)
+  
+  a <- rep(0, n)     # smoothed state error variance
+  v <- rep(0, n)
+  F_star <- rep(0, n)     # smoothed state variance
+  P_star <- rep(0, n)
+  K <- rep(0, n)
+  
+  
+  a[2] <- y[1]
+  P_star[2] <- q + 1
+  
+  for(t in 2:n){
+    v[t] <- y[t] - a[t]
+    F_star[t] <- P_star[t] + 1
+    K[t] <- P_star[t]/F_star[t]
+    
+    a[t+1] <- a[t] + K[t]*v[t]
+    P_star[t+1] <- P_star[t]*(1 - K[t]) + q
+    
+  }
+
+  kalman_star <- data.frame(v[2:n], F_star[2:n])
+  
+  return(kalman_star)
+  
+}
+
+calcualte_sig_eps_hat <- function(kalman_star){
+  n <- nrow(kalman_star)
+  
+  F_star <- kalman_star$F_star
+  v <- kalman_star$v
+  
+  sig_eps <- (1/(n - 1))*sum((v^2)/F_star)
+  
+  return(sig_eps)
+}
+
+gauss_loglik_dc <- function(theta, data){
+  y <- as.matrix(data)
+  n <- length(y)
+  
+  phi <- theta
+  q <- exp(phi)
+  
+  kalman_star <- optimal_kalman_filter(data, q)
+  F_star <- kalman_star$F_star
+  sig_eps <- calcualte_sig_eps_hat(kalman_star)
+  
+  loglik <- -(n/2)*log(2*pi) - ((n-1)/2) - ((n-1)/2)*(log(sig_eps)) - (1/2)*sum(log(F_star))
+
+  return(loglik)
+  
+}
+
+
+
+
+########### PLOTS ######################
+
+
+
 plotOne <- function(df){
   "
   Goal: Plot figure 2.1
