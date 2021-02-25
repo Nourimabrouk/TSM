@@ -13,17 +13,15 @@ This code applies CH 2 of the book including the figures presented to our own ti
 "
 
 rm(list=ls())
-dev.off()
-
 # Imports ----------
-library(here)
-setwd(here('currentwork'))
 
-source("currFunctions.R")
-source("currPlotting.R")
+library(here)
+source("Functions.R")
+source("Plotting.R")
 library(tidyverse)
 library(lubridate)
 
+setwd(here())
 options(warn=-1)
 
 # Data import--------
@@ -31,7 +29,7 @@ ts_flights
 
 df_flights <- read_csv(here('Data', 'total-number-of-flights.csv'))
 
-dates = df_flights %>% slice(32:131) %>% select(1) %>% transmute(date = as.Date(DateTime, format="%d/%m/%y") %>% format("%m-%d")) %>% pull()
+dates = df_flights %>% slice(32:131) %>% select(1) %>% transmute(date = as.Date(DateTime, format="%d/%m/%y")) %>% pull()
 
 ts_flights <-  df_flights%>% 
   select(2) %>% slice(32:131) %>% ts()
@@ -71,5 +69,13 @@ df_st_residuals <- stand_smooth_residuals(df_kalman_filtered_state$F,df_kalman_f
                                           df_kalman_filtered_state$K, df_smoothed_state$r,
                                           df_smoothed_state$N)
 
+#Plot results
+plotOne(ts_flights[-1,], df_kalman_filtered_state[-1,])
+plotTwo(ts_flights, df_smoothed_state)
+plotThree(df_disturbance %>% slice(-c(1,2)))
+plotFive(df_data_missing[-1,], df_kalman_missing_data %>% slice(-1), df_smoothed_state_missing_data %>% slice(-1))
+plotSix(ts_flights[-1,], df_kalman_filtered_state[-1,], df_forecasts[-1,])
+plotSeven(df_predictionerrors %>% slice(-c(1:2)))
+plotEight(df_st_residuals %>% slice(-1), df_predictionerrors %>% slice(-1))
 
 

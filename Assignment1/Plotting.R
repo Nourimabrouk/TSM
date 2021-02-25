@@ -4,11 +4,7 @@ plotOne <- function(df_data, df_kf){
   Goal: Plot figure 2.1
   Input: df_kalman_filtered_state
   Output: Plot 2.1
-  
   "
-  # Input: 
-  png("1.png", width = 1000, height = 500)
-  
   n <- nrow(df_kf)
   
   y <- as.matrix(df_data)[2:n]
@@ -32,7 +28,7 @@ plotOne <- function(df_data, df_kf){
   abline(h=0,col="red")
   plot(makeTS(state_error_variance, 2), plot.type="single", ylab="", xlab="Days", main = "(iv)",font.main=1, cex.main=1,  ylim=create_ylim(state_error_variance))
   
-  dev.off()
+
   
 }
 
@@ -42,8 +38,7 @@ plotTwo <- function(df_data, df_sm){
   Input: df_smoothed_state
   Output: Plot 2.4
   "
-  png("2.png", width = 1000, height = 500)
-  
+
   n <- nrow(df_sm)
   
   y <- as.matrix(df_data)[2:n]
@@ -66,7 +61,7 @@ plotTwo <- function(df_data, df_sm){
   plot(makeTS(state_error, 2), plot.type="single", ylab="", xlab="Days", main = "(iii)",font.main=1, cex.main=1,  ylim=create_ylim(state_error))
   abline(h=0,col="red")
   plot(makeTS(state_error_variance, 2), plot.type="single", ylab="", xlab="Days", main = "(iv)",font.main=1, cex.main=1,  ylim=create_ylim(state_error_variance))  
-  dev.off()
+
   
 }
 
@@ -76,8 +71,7 @@ plotThree <- function(df){
   Input: df_disturbance
   Output: Plot 2.3 
   "
-  png("3.png", width = 1000, height = 500)
-  
+
   n <- nrow(df)
   observation_error <- df$eps[1:n]
   observation_error_variance <- df$sd_eps[1:n]
@@ -92,7 +86,7 @@ plotThree <- function(df){
   plot(makeTS(state_error, 2), plot.type="single", ylab="", xlab="Days", main = "(iii)",font.main=1, cex.main=1,  ylim=create_ylim(state_error))
   abline(h=0, col="red")
   plot(makeTS(state_error_variance, 2), plot.type="single", ylab="", xlab="Days", main = "(iv)",font.main=1, cex.main=1,  ylim=create_ylim(state_error_variance))
-  dev.off()
+
 }
 
 plotFive <- function(df_data, df_k, df_s){
@@ -101,8 +95,7 @@ plotFive <- function(df_data, df_k, df_s){
   Input: df_data, df_kalman_missing_data, df_smoothed_missing_data
   Output: Plot 2.5
   "
-  png("5.png", width = 1000, height = 500)
-  
+
   n <- length(df_data)
   
   filtered_state <- df_k$a[2:n]
@@ -122,13 +115,12 @@ plotFive <- function(df_data, df_k, df_s){
   lines(makeTS(df_data, 2))
   
   plot(makeTS(smoothed_state_variance, 2), plot.type="single", ylab="", xlab="Days", main = "(iv)", font.main=1, cex.main=1,  ylim=create_ylim(smoothed_state_variance))
-  dev.off()
+
   
 }
 
 plotSix <- function(df_data, df_filtered, df_forecasts){
-  png("6.png", width = 1000, height = 500)
-  
+
   "
   Goal: Plot Forecasting 2.6
   Input: df_kalman_filtered_state, df_forecasting
@@ -156,7 +148,7 @@ plotSix <- function(df_data, df_filtered, df_forecasts){
   plot(makeTS(forecast_variance, 2), plot.type="single", ylab="", xlab="",main = "(ii)",font.main=1, cex.main=1,  ylim=create_ylim(forecast_variance))
   plot(makeTS(forecast_observation, 2), plot.type="single", ylab="", xlab="Days", main = "(iii)",font.main=1, cex.main=1,  ylim=create_ylim(forecast_observation))
   plot(makeTS(forecast_error_variance, 2), plot.type="single", ylab="", xlab="Days", main = "(iv)",font.main=1, cex.main=1,  ylim=create_ylim(forecast_error_variance)) 
-  dev.off()
+
   
 }
 
@@ -166,8 +158,6 @@ plotSeven <- function(df){
   Input: 
   Output: Plot 2.7
   "
-  png("7.png", width = 1000, height = 500)
-  
   n <- nrow(df)
   
   stv <- df[,1]
@@ -184,7 +174,7 @@ plotSeven <- function(df){
   
   plot(acf(stv, lag.max = 10, plot=F), xlim=c(1,10), ylim=c(-1, 2),ci = 0)
   title("(iv)", cex.main = .75, font.main =1)
-  dev.off()
+
   
 }
 plotEight <- function(df_st_residuals, df_7output){
@@ -193,7 +183,6 @@ plotEight <- function(df_st_residuals, df_7output){
   Input: 
   Output: Plot 2.8
   "
-  png("8.png", width = 1000, height = 500)
   length <- nrow(df_st_residuals)
   
   stv <- df_predictionerrors[-1,1]
@@ -213,7 +202,7 @@ plotEight <- function(df_st_residuals, df_7output){
   hist(df_st_residuals[,2], col = "white", prob=T, main = "(iv)",font.main=1, cex.main=1, 
        ylim=c(0,1.2),xlab="Theoretical Quantiles",ylab="", na.rm=TRUE)
   lines(density(r_star, na.rm=TRUE), na.rm=TRUE)
-  dev.off()
+
   
 }
 
