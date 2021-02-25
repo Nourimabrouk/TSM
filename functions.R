@@ -27,7 +27,7 @@ optimal_kalman_filter <- function(df_data, q){
     a[t+1] <- a[t] + K[t]*v[t]
     P_star[t+1] <- P_star[t]*(1 - K[t]) + q
     
-  }
+  }====
   
   kalman_star <- data.frame(v[2:n], F_star[2:n])
   
