@@ -46,7 +46,7 @@ returns <- data %>%
   as_tsibble(index = index) %>% 
   rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4) %>% 
   mutate(demeaned = x - mean(x),
-         transformed = log(demeaned ^ 2)) 
+         transformed = log(demeaned ^ 2) ) 
 
 stonkdata <- stonks %>%   
   filter(Symbol == ".AEX" & year(X1) > 2013) %>% 
@@ -63,7 +63,7 @@ res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
 # e)
 # Overview of dataset
-stonks %>% View()
+stonks %>% head
 colnames(stonks)
 unique(stonks$Symbol)
 range(stonks$X1)
@@ -76,3 +76,22 @@ autoplot(returns, transformed)
 
 autoplot(stonkdata, Close)
 autoplot(stonkdata, RV)
+range(returns$demeaned)
+
+# 14.5 (i)
+ggplot(returns, aes(index, demeaned))+
+  theme_minimal()+
+  geom_line()+
+  geom_hline(yintercept = 0)+
+  scale_x_continuous(breaks = seq(0,900,100))
+# 14.5 (ii)
+ggplot(returns, aes(index))+
+  theme_minimal()+
+  geom_point()+
+  # + geom_line(smoothed_estimate k+theta)
+  geom_hline(yintercept = 0)+
+  scale_x_continuous(breaks = seq(0,900,100))
+# 14.5 (iii)
+# ggplot(returns, aes(index, SE_volmeasure))+
+#   theme_minimal()+
+#   geom_line()
