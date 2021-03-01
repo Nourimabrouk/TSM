@@ -48,15 +48,13 @@ plot(ts(ret_demeaned)) # Divide ret by 100 to obtain plot page 320 of DK
 
 # Make SV-model linear by transformation 
 ret_trans <- log(ret_demeaned^2)
-plot(ts(ret_trans)) # Again divide by 100 (Moeten het anders plotten volgens de assignment)
+plot(ts(ret_trans/100)) # Again divide by 100 (Moeten het anders plotten volgens de assignment)
 
 
 
 source("Functions.R")
-par_ini <- c(5, 0.5, 1)
+par_ini <- c(2, 0.8, 0.9)
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
-
-
 
 
 

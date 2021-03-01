@@ -6,7 +6,7 @@ state_space_parameter_optimizer <- function(df_data, phi_ini){
   print(phi_ini)
   results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par), method='BFGS')
   
-  theta_hat <- c(q_hat, sig_eps_hat, sig_eta_hat)
+  theta_hat <- results$par
   
   print("The parameter estimates are:")
   print(round(theta_hat, 4))
@@ -28,17 +28,18 @@ state_space_parameter_optimizer <- function(df_data, phi_ini){
 GetloglikGauss<- function(data, theta){
   
   y <- as.matrix(data)
-
+  
   kf_state <- KalmanFilterSV(data, theta)
   
-  print(kf_state)
+  h <- kf_state$h
+  P <- kf_state$P
   
-  h <- KalmanFilterSV$h
-  P <- KalmanFilterSV$P
+  loglik_density <- -(1/2)*log(2*pi) - (1/2)*log(P) - (1/2)*((y-h)^2)/P
+  loglik_density[is.nan(loglik_density)] <- 0
   
-  logLik_density <- -(1/2)*log(2*pi) - (1/2)*log(P) - (1/2)*((y-h)^2)/(2*P)
+  loglikelihood <- (sum(loglik_density))
   
-  return(sum(logLik_density))
+  return(loglikelihood)
   
 }
 
@@ -52,7 +53,7 @@ KalmanFilterSV <- function(data, theta){
     mean_u <- -1.27
     
     sig_sq_eta <- theta[1]
-    phi <- theta[2]
+    phi <-  theta[2]
     omega <- theta[3]
     
     # Kalman filtering
@@ -62,22 +63,17 @@ KalmanFilterSV <- function(data, theta){
     F <- rep(0,n)
     K <- rep(0,n)
     
-    h_y <- rep(0,n) #conditional on y
-    P_y <- rep(0,n) 
-    
-    
     h[1] <- omega/(1-phi) #unconditional mean
-    P[1] <- sig_sq_eta/(1-phi^2)    
+    P[1] <- sig_sq_eta/(1-phi^2) #unconditional variance   
     
     for (i in 2:n) {
       v[i] <- y[i] - h[i] - mean_u
       F[i] <- P[i] + sig_u
       K[i] <- P[i]/F[i]
-      #h_y[i] <- h[i] + P[i]*v[i] / F[i] 
-      #P_y[i] <- P[i] - P[i]^2 / F[i]
+
       if(i < n-1){
-        h[i+1] <- phi*h[i] + omega + K[i]*v[i]
-        P[i+1] <- phi^2*P[i] + sig_sq_eta - K[i]^2*F[i]
+        h[i+1] <- omega + phi*h[i] + K[i]*v[i]
+        P[i+1] <- (phi^2)*P[i] + sig_sq_eta - (K[i]^2)*F[i]
       } 
     }
     
