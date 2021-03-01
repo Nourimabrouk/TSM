@@ -1,9 +1,9 @@
 "
 Time Series Models
-Assignment 1
+Assignment 2
 
 Authors:
-Zeus Paraguas
+Zeus Paraguas 2624650
 Bart
 Jari Verbeek 2580924
 Nouri Mabrouk 2623401
@@ -29,7 +29,6 @@ options(warn=-1)
 
 # Data import--------
 
-df_flights <- read_csv(here('Data', 'total-number-of-flights.csv'))
 data <- read.delim(here('Data', 'sv.dat'))
 
 ## if data in prices
@@ -39,16 +38,16 @@ data <- read.delim(here('Data', 'sv.dat'))
 #   ret[i-1] <- 100*log(data[i,1]/data[i-1,1])
 # }
 
-return <- sv %>% as_tibble() %>% rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4)
+return <- data %>% as_tibble() %>% rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4)
 
 # Demean to avoid taking logs of zeros
 mean <- mean(return$x)
 
-ret <- ret-mean
-plot(ts(ret)) # Divide ret by 100 to obtain plot page 320 of DK
+ret_demeaned <- return-mean
+plot(ts(ret_demeaned)) # Divide ret by 100 to obtain plot page 320 of DK
 
 # Make SV-model linear by transformation 
-ret_trans <- log(ret^2)
+ret_trans <- log(ret_demeaned^2)
 plot(ts(ret_trans)) # Again divide by 100 (Moeten het anders plotten volgens de assignment)
 
 
