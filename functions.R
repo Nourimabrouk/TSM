@@ -1,49 +1,10 @@
 # In comments: function name in python code
 
-# Initial values
-initial_values<- function(){
-  
-}
-#KalmanFilter
-optimal_kalman_filter <- function(df_data, q){
-  y <- as.matrix(df_data)
-  n <- length(y)
-  
-  a <- rep(0, n)     # smoothed state error variance
-  v <- rep(0, n)
-  F_star <- rep(0, n)     # smoothed state variance
-  P_star <- rep(0, n)
-  K <- rep(0, n)
-  
-  
-  a[2] <- y[1]
-  P_star[2] <- q + 1
-  
-  for(t in 2:n){
-    v[t] <- y[t] - a[t]
-    F_star[t] <- P_star[t] + 1
-    K[t] <- P_star[t]/F_star[t]
-    
-    a[t+1] <- a[t] + K[t]*v[t]
-    P_star[t+1] <- P_star[t]*(1 - K[t]) + q
-    
-  }
-  
-  kalman_star <- data.frame(v[2:n], F_star[2:n])
-  
-  return(kalman_star)
-  
-}
-
 # GetOptKalman
-kalman_parameter_optimizer <- function(df_data, phi_ini){
+state_space_parameter_optimizer <- function(df_data, phi_ini){
   
-  results <- optim(par=phi_ini, fn=function(par) - gauss_loglik_dc(par, df_data), method='BFGS')
-  
-  q_hat <- exp(results$par)
-  kalman_star <- optimal_kalman_filter(df_data, q_hat)
-  sig_eps_hat <- calculate_sig_eps_hat(kalman_star)
-  sig_eta_hat <- q_hat*sig_eps_hat
+  print(phi_ini)
+  results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par), method='BFGS')
   
   theta_hat <- c(q_hat, sig_eps_hat, sig_eta_hat)
   
@@ -63,54 +24,39 @@ kalman_parameter_optimizer <- function(df_data, phi_ini){
   
 }
 
-# is getIniTheta 
-calculate_sig_eps_hat <- function(kalman_star){
-  n <- nrow(kalman_star)
+#GetloglikGauss
+GetloglikGauss<- function(data, theta){
   
-  F_star <- kalman_star$F_star
-  v <- kalman_star$v
+  y <- as.matrix(data)
+
+  kf_state <- KalmanFilterSV(data, theta)
   
-  sig_eps <- (1/(n - 1))*sum((v^2)/F_star)
+  print(kf_state)
   
-  return(sig_eps)
+  h <- KalmanFilterSV$h
+  P <- KalmanFilterSV$P
+  
+  logLik_density <- -(1/2)*log(2*pi) - (1/2)*log(P) - (1/2)*((y-h)^2)/(2*P)
+  
+  return(sum(logLik_density))
+  
 }
 
-#GetloglikGauss
-GetloglikGauss<- function(){
-  
-}
-# LogLikGauss
-gauss_loglik_dc <- function(theta, data){
-  y <- as.matrix(data)
-  n <- length(y)
-  
-  phi <- theta
-  q <- exp(phi)
-  
-  kalman_star <- optimal_kalman_filter(data, q)
-  F_star <- kalman_star$F_star
-  sig_eps <- calculate_sig_eps_hat(kalman_star)
-  
-  loglik <- -(n/2)*log(2*pi) - ((n-1)/2) - ((n-1)/2)*(log(sig_eps)) - (1/2)*sum(log(F_star))
-  
-  return(loglik)
-  
-}
 
 # KalmanFilterSV
-KalmanFilterSV<- function(data, theta){
-    y <- data
-    n <- length(data)
+KalmanFilterSV <- function(data, theta){
+    y <- as.matrix(data)
+    n <- length(y)
     
     sig_u <- pi^2/2    
     mean_u <- -1.27
     
-    sig_sq_eta <- theta[0]
-    phi <- theta[1]
-    omega <- theta[2]
+    sig_sq_eta <- theta[1]
+    phi <- theta[2]
+    omega <- theta[3]
     
     # Kalman filtering
-        h <- rep(0,n)
+    h <- rep(0,n)
     P <- rep(0,n)
     v <- rep(0,n)
     F <- rep(0,n)
@@ -130,12 +76,14 @@ KalmanFilterSV<- function(data, theta){
       #h_y[i] <- h[i] + P[i]*v[i] / F[i] 
       #P_y[i] <- P[i] - P[i]^2 / F[i]
       if(i < n-1){
-        h[i+1] <- phi*h[i]+omega+K[i]*v[i]
-        P[i+1] <- phi^2*P[i]+sig_sq_eta-K[i]^2*F[i]
+        h[i+1] <- phi*h[i] + omega + K[i]*v[i]
+        P[i+1] <- phi^2*P[i] + sig_sq_eta - K[i]^2*F[i]
       } 
     }
-    kalmanfiltersv <- data.frame(F[2:n],v[2:n])
-    return(F,v)
+    
+    kalmanfiltersv <- data.frame(h, P, v, F, K)
+    
+    return(kalmanfiltersv)
 }
 
 # SmoothedState
@@ -197,7 +145,3 @@ smoothed_state <- function(df_data, df_kf){
   return (SmoothedState_df)
 }
 
-# LoadData
-GetloglikGauss<- function(){
-  
-}

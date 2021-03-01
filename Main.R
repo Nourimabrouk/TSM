@@ -52,4 +52,12 @@ plot(ts(ret_trans)) # Again divide by 100 (Moeten het anders plotten volgens de 
 
 
 
+source("Functions.R")
+par_ini <- c(5, 0.5, 1)
+res <- state_space_parameter_optimizer(ret_trans, par_ini)
+
+
+
+
+
 
