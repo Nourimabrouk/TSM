@@ -51,7 +51,8 @@ returns <- data %>%
 stonkdata <- stonks %>%   
   filter(Symbol == ".AEX" & year(X1) > 2013) %>% 
   select(X1,close_price,rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
-  rename(Date = X1, Close = close_price, RV = rk_parzen) %>% 
+  rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
+  mutate(RV = log(RV)) %>% 
   as_tsibble()
 
 returns
