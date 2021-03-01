@@ -1,5 +1,3 @@
-# In comments: function name in python code
-
 # GetOptKalman
 state_space_parameter_optimizer <- function(df_data, phi_ini){
   

@@ -30,6 +30,7 @@ options(warn=-1)
 # Data import--------
 
 data <- read.delim(here('Data', 'sv.dat'))
+stonks <- read_csv(here('Data', 'oxfordmanrealizedvolatilityindices.csv'))
 
 ## if data in prices
 # k <- nrow(data)
@@ -57,5 +58,16 @@ par_ini <- c(2, 0.8, 0.9)
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
 
+# e)
+# Overview of dataset
+stonks %>% View()
+colnames(stonks)
+unique(stonks$Symbol)
+range(stonks$X1)
 
-
+# Data prep
+RVdata <- stonks %>% 
+  filter(Symbol == ".AEX" & year(X1) > 2013) %>% 
+  select(X1,close_price,rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
+  rename(Date = X1, Close = close_price, RV = rk_parzen)
+RVdata
