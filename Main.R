@@ -29,7 +29,6 @@ options(warn=-1)
 
 # Data import--------
 
-df_flights <- read_csv(here('Data', 'total-number-of-flights.csv'))
 data <- read.delim(here('Data', 'sv.dat'))
 
 ## if data in prices

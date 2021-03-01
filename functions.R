@@ -98,9 +98,46 @@ gauss_loglik_dc <- function(theta, data){
 }
 
 # KalmanFilterSV
-GetloglikGauss<- function(){
-  
+KalmanFilterSV<- function(data, theta){
+    y <- data
+    n <- length(data)
+    
+    sig_u <- pi^2/2    
+    mean_u <- -1.27
+    
+    sig_sq_eta <- theta[0]
+    phi <- theta[1]
+    omega <- theta[2]
+    
+    # Kalman filtering
+        h <- rep(0,n)
+    P <- rep(0,n)
+    v <- rep(0,n)
+    F <- rep(0,n)
+    K <- rep(0,n)
+    
+    h_y <- rep(0,n) #conditional on y
+    P_y <- rep(0,n) 
+    
+    
+    h[1] <- omega/(1-phi) #unconditional mean
+    P[1] <- sig_sq_eta/(1-phi^2)    
+    
+    for (i in 2:n) {
+      v[i] <- y[i] - h[i] - mean_u
+      F[i] <- P[i] + sig_u
+      K[i] <- P[i]/F[i]
+      #h_y[i] <- h[i] + P[i]*v[i] / F[i] 
+      #P_y[i] <- P[i] - P[i]^2 / F[i]
+      if(i < n-1){
+        h[i+1] <- phi*h[i]+omega+K[i]*v[i]
+        P[i+1] <- phi^2*P[i]+sig_sq_eta-K[i]^2*F[i]
+      } 
+    }
+    kalmanfiltersv <- data.frame(F[2:n],v[2:n])
+    return(F,v)
 }
+
 # SmoothedState
 smoothed_state <- function(df_data, df_kf){
   "
