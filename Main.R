@@ -92,6 +92,7 @@ ggplot(returns, aes(index))+
   # + geom_line(smoothed_estimate k+theta)
   geom_hline(yintercept = 0)+
   scale_x_continuous(breaks = seq(0,900,100))
+
 # 14.5 (iii)
 # ggplot(returns, aes(index, SE_volmeasure))+
 #   theme_minimal()+

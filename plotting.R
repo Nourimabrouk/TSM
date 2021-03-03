@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 plotReturns<- function(svData, label){
   
 }
@@ -14,4 +12,3 @@ plotForecast<- function(DF_forecast, DF_Kalman, NileData_array, yearIncludingFor
 plotKalmanSV<- function(){
   
 }
->>>>>>> Stashed changes
