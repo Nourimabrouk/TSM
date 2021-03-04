@@ -29,10 +29,10 @@ GetloglikGauss<- function(data, theta){
   
   kf_state <- KalmanFilterSV(data, theta)
   
-  h <- kf_state$h
-  P <- kf_state$P
+  v <- kf_state$v
+  F <- kf_state$P
   
-  loglik_density <- -(1/2)*log(2*pi) - (1/2)*log(P) - (1/2)*((y-h)^2)/P
+  loglik_density <- -(1/2)*log(2*pi) - (1/2)*log(F) - (1/2)*((v)^2)/F
   loglik_density[is.nan(loglik_density)] <- 0
   
   loglikelihood <- (sum(loglik_density))
@@ -60,18 +60,23 @@ KalmanFilterSV <- function(data, theta){
     v <- rep(0,n)
     F <- rep(0,n)
     K <- rep(0,n)
+    P_t <- rep(0,n)
+    h_t <- rep(0,n)
     
     h[1] <- omega/(1-phi) #unconditional mean
     P[1] <- sig_sq_eta/(1-phi^2) #unconditional variance   
     
-    for (i in 2:n) {
-      v[i] <- y[i] - h[i] - mean_u
-      F[i] <- P[i] + sig_u
-      K[i] <- P[i]/F[i]
+    for (t in 2:n) {
+      v[t] <- y[t] - h[t] - mean_u
+      F[t] <- P[t] + sig_u
+      K[t] <- P[t]/F[t]
+      
+      h_t[t] <- h[t] + P[t]/F[t]*v[t]
+      P_t[t] <-  P[t] - (P[t]^2)/F[t]
 
-      if(i < n-1){
-        h[i+1] <- omega + phi*h[i] + K[i]*v[i]
-        P[i+1] <- (phi^2)*P[i] + sig_sq_eta - (K[i]^2)*F[i]
+      if(t < n-1){
+        h[t+1] <- omega + phi*h_t[t]
+        P[t+1] <- phi^2*P_t[t] + sig_sq_eta^4
       } 
     }
     
