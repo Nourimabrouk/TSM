@@ -1,3 +1,5 @@
+# In comments: function name in python code
+
 # GetOptKalman
 state_space_parameter_optimizer <- function(df_data, phi_ini){
   
@@ -30,11 +32,10 @@ GetloglikGauss<- function(data, theta){
   kf_state <- KalmanFilterSV(data, theta)
   
   v <- kf_state$v
-  F <- kf_state$P
+  F <- kf_state$F
   
-  loglik_density <- -(1/2)*log(2*pi) - (1/2)*log(F) - (1/2)*((v)^2)/F
-  loglik_density[is.nan(loglik_density)] <- 0
-  
+  loglik_density <- -(1/2)*log(2*pi) - (1/2)*log(abs(F)) - (1/2)*(v^2)/F
+  #loglik_density[is.nan(loglik_density)] <- 0
   loglikelihood <- (sum(loglik_density))
   
   return(loglikelihood)
@@ -51,7 +52,7 @@ KalmanFilterSV <- function(data, theta){
     mean_u <- -1.27
     
     sig_sq_eta <- theta[1]
-    phi <-  theta[2]
+    phi <- theta[2]
     omega <- theta[3]
     
     # Kalman filtering
@@ -60,23 +61,18 @@ KalmanFilterSV <- function(data, theta){
     v <- rep(0,n)
     F <- rep(0,n)
     K <- rep(0,n)
-    P_t <- rep(0,n)
-    h_t <- rep(0,n)
     
-    h[1] <- omega/(1-phi) #unconditional mean
-    P[1] <- sig_sq_eta/(1-phi^2) #unconditional variance   
+    h[1] <- omega/(1 - phi) #unconditional mean
+    P[1] <- sig_sq_eta/(1 - phi^2) #unconditional variance   
     
-    for (t in 2:n) {
-      v[t] <- y[t] - h[t] - mean_u
+    for (t in 1:n) {
+      v[t] <- y[t] - mean_u - h[t]
       F[t] <- P[t] + sig_u
-      K[t] <- P[t]/F[t]
-      
-      h_t[t] <- h[t] + P[t]/F[t]*v[t]
-      P_t[t] <-  P[t] - (P[t]^2)/F[t]
+      K[t] <- phi*(P[t]/F[t])
 
       if(t < n-1){
-        h[t+1] <- omega + phi*h_t[t]
-        P[t+1] <- phi^2*P_t[t] + sig_sq_eta^4
+        h[t+1] <- omega + phi*h[t] + K[t]*v[t]
+        P[t+1] <- (phi^2)*P[t] + sig_sq_eta^4 - (K[t]^2)*F[t]
       } 
     }
     
