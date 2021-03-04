@@ -53,7 +53,7 @@ returns
 stonkdata
 
 source("functions.R")
-par_ini <- c(0.08, 0.9, -0.06)
+par_ini <- c(2, 0.9, 0.8)
 ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
