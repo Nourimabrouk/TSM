@@ -26,6 +26,13 @@ state_space_parameter_optimizer <- function(df_data, phi_ini){
 
 #GetloglikGauss
 GetloglikGauss<- function(data, theta){
+  "
+  Goal: Compute Gaussian log likelihood defined in equation 7.2 in DK
+  Input: data matrix, parameters of interest vector theta
+  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
+  
+  "
+  
   
   y <- as.matrix(data)
   n <- length(y)
@@ -35,6 +42,7 @@ GetloglikGauss<- function(data, theta){
   v <- kf_state$v
   F <- kf_state$F
   
+  #DK  p.171 eq 7.2
   log_density <- -(1/2)*log(2*pi) - (1/2)*log(abs(F)) - (1/2)*(v^2)/F
   log_density[is.nan(log_density)] <- 0
   loglikelihood <- (sum(log_density))
@@ -46,6 +54,13 @@ GetloglikGauss<- function(data, theta){
 
 # KalmanFilterSV
 KalmanFilterSV <- function(data, theta){
+  "
+  Goal: Perform Kalman filter for state space model as defined in eq 4.2 and slide 21 of Week III
+  Input: data matrix, parameters of interest vector theta
+  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
+  
+  "
+  
     y <- as.matrix(data)
     n <- length(y)
     
