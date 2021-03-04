@@ -53,8 +53,27 @@ returns
 stonkdata
 
 source("functions.R")
-par_ini <- c(2, 0.9, 0.8)
-ret_trans <- returns$transformed
+
+
+h <- rep(0,N)
+y <- rep(0,N)
+
+
+N <- 10000
+phi <- 0.98
+sigma <- 0.3317
+omega <- -0.21
+
+epsilon <- rnorm(N)
+eta <- rnorm(N,0,sqrt(sigma))
+
+for (t in 1:N){
+  h[t] <- omega + phi*h[t] + sigma*eta[t]
+  y[t] <- h[t] + epsilon[t]
+}
+
+par_ini <- c(4, 0.9, 0.8)
+ret_trans <- y
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
 # e)
