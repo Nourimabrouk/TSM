@@ -45,7 +45,7 @@ returns <- data %>%
   relocate(index) %>% 
   as_tsibble(index = index) %>% 
   rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4) %>% 
-  mutate(demeaned = x - mean(x),
+  mutate(demeaned = (x - mean(x)) / 100 ,
          transformed = log(demeaned ^ 2) ) 
 
 stonkdata <- stonks %>%   
@@ -84,14 +84,15 @@ ggplot(returns, aes(index, demeaned))+
   theme_minimal()+
   geom_line()+
   geom_hline(yintercept = 0)+
+  scale_y_continuous(breaks = seq(-.05,.05,.025))+
   scale_x_continuous(breaks = seq(0,900,100))
-# 14.5 (ii)
-ggplot(returns, aes(index))+
-  theme_minimal()+
-  geom_point()+
-  # + geom_line(smoothed_estimate k+theta)
-  geom_hline(yintercept = 0)+
-  scale_x_continuous(breaks = seq(0,900,100))
+# # 14.5 (ii)
+# ggplot(returns, aes(index))+
+#   theme_minimal()+
+#   geom_point()+
+#   # + geom_line(smoothed_estimate k+theta)
+#   geom_hline(yintercept = 0)+
+#   scale_x_continuous(breaks = seq(0,900,100))
 
 # 14.5 (iii)
 # ggplot(returns, aes(index, SE_volmeasure))+
