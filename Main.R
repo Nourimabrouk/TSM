@@ -72,8 +72,8 @@ for (t in 1:N){
   y[t] <- h[t] + epsilon[t]
 }
 
-par_ini <- c(4, 0.9, 0.8)
-ret_trans <- y
+par_ini <- c(0.1, 0.9, -0.06)
+ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
 # e)
