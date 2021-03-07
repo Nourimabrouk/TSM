@@ -1,6 +1,3 @@
-# In comments: function name in python code
-
-# GetOptKalman
 state_space_parameter_optimizer <- function(df_data, phi_ini){
   
   print(phi_ini)
@@ -24,7 +21,6 @@ state_space_parameter_optimizer <- function(df_data, phi_ini){
   
 }
 
-#GetloglikGauss
 GetloglikGauss<- function(data, theta){
   "
   Goal: Compute Gaussian log likelihood defined in equation 7.2 in DK
@@ -49,8 +45,6 @@ GetloglikGauss<- function(data, theta){
   
 }
 
-
-# KalmanFilterSV
 KalmanFilterSV <- function(data, theta){
   "
   Goal: Perform Kalman filter for state space model as defined in eq 4.2 and slide 21 of Week III
@@ -118,7 +112,6 @@ KalmanFilterSV <- function(data, theta){
   return(kalmanfiltersv)
 }
 
-# SmoothedState
 smoothed_state <- function(df_data, df_kf){
   "
   Goal: Compute smoothed state through reverse loop
@@ -176,4 +169,21 @@ smoothed_state <- function(df_data, df_kf){
   
   return (SmoothedState_df)
 }
+
+# Particle filter
+# ( Ask karim )
+particlefilter <- function(data){
+  tao = 1000 # burn in
+  n = length(data)
+  for (t in (tao + 1): n){
+    # Discard start up sample / burnin
+    
+    # Sample a_t (12.16)
+    # Compute weights & Normalise -> as 12.17
+    # Compute x^_t
+    # Resample
+    print("particle filter")
+    
+  }
+  }
 

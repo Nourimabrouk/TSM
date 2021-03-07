@@ -15,7 +15,7 @@ This code applies CH 2 of the book including the figures presented to our own ti
 rm(list=ls())
 # Imports ----------
 
-source("functions.R")
+source("Functions.R")
 source("Plotting.R")
 
 library(here)
@@ -29,7 +29,7 @@ library(fable)
 setwd(here())
 options(warn=-1)
 
-# Data import--------
+# Data cleaning--------
 
 data <- read.delim(here('Data', 'sv.dat'))
 stonks <- read_csv(here('Data', 'oxfordmanrealizedvolatilityindices.csv'))
@@ -49,24 +49,20 @@ stonkdata <- stonks %>%
   mutate(RV = log(RV)
          ) %>% 
   as_tsibble()
-
+# d)----------
 y <- diff(log(stonkdata$Close))
 x <- log((y - mean(y))^2)
 
 rv <- stonkdata$RV[-1]
 stonks_data1 <- cbind(x, rv)
-  
+
 returns
 stonkdata
 
-source("functions.R")
-
-
+N <- 10000
 h <- rep(0,N)
 y <- rep(0,N)
 
-
-N <- 10000
 phi <- 0.980
 sigma <- 0.1082
 omega <- -0.207
@@ -81,29 +77,21 @@ for (t in 1:N){
   h[t+1] <- omega + phi*h[t] + sigma*eta[t]
 }
 
-source("functions.R")
 par_ini <- c(0.1082, 0.980, -0.207)
 ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
-source("functions.R")
 par_ini <- c(0.1082, 0.980, -0.207, 0.6)
 res2 <- state_space_parameter_optimizer(stonks_data1, par_ini)
 
-
-
-
-
-# e)
+# e) ------
 # Overview of dataset
 stonks %>% head
 colnames(stonks)
 unique(stonks$Symbol)
 range(stonks$X1)
 
-# Data prep
-
-#Quickplots
+# Quickplots --------
 autoplot(returns, demeaned)
 autoplot(returns, transformed)
 
@@ -130,3 +118,7 @@ ggplot(returns, aes(index, demeaned))+
 # ggplot(returns, aes(index, SE_volmeasure))+
 #   theme_minimal()+
 #   geom_line()
+
+# f) ------
+particlefilter(returns)
+particlefilter(stonkdata)
