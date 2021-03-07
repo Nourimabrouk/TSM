@@ -58,17 +58,38 @@ KalmanFilterSV <- function(data, theta){
   Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
   
   "
-  
-  y <- as.matrix(data)
-  n <- length(y)
+  X <- as.matrix(data)
+  n <- dim(X)[1]
+  m <- dim(X)[2]
+
+  y <- X[,1]
+
+  if (m > 1){
+    x <- X[,-1]
+    
+    sig_eta <- theta[1]
+    phi <- theta[2]
+    omega <- theta[3]
+    beta <- theta[4]
+    
+  } else{
+    x <- rep(0, n)
+    
+    sig_eta <- theta[1]
+    phi <- theta[2]
+    omega <- theta[3]
+    beta <- 0
+  }
   
   sig_u <- pi^2/2    
   mean_u <- -1.27
   
-  sig_sq_eta <- theta[1]
-  phi <- theta[2]
-  omega <- theta[3]
-
+  R_t <- 1
+  H_t <- sig_u
+  Q_t <- sig_eta
+  T_t <- phi
+  
+  
   # Define Kalman filtering matrices
   h <- rep(0, n)
   P <- rep(0, n)
@@ -77,17 +98,18 @@ KalmanFilterSV <- function(data, theta){
   K <- rep(0, n)
   
   # Define initial values for unconditional mean and variacne resp.
-  h[1] <- omega/(1 - phi) 
-  P[1] <- sig_sq_eta/(1 - phi^2) 
+  h[1] <- omega/(1 - T_t) 
+  P[1] <- Q_t/(1 - T_t^2) 
   
   for (t in 1:n) {
-    v[t] <- y[t] - mean_u - h[t]
-    F[t] <- P[t] + sig_u
-    K[t] <- phi*(P[t]/F[t])
+    #print(cbind(x[t], h[t], y[t]))
+    v[t] <- (y[t] - mean_u) - h[t] - x[t]*beta
+    F[t] <- P[t] + H_t
+    K[t] <- T_t*(P[t]/F[t])
 
     if(t < n-1){
-      h[t+1] <- omega + phi*h[t] + K[t]*v[t]
-      P[t+1] <- phi^2*P[t] + sig_sq_eta^2 - K[t]^2*F[t]
+      h[t+1] <- omega + T_t*h[t] + K[t]*v[t]
+      P[t+1] <- T_t^2*P[t] + (Q_t^2)*R_t - K[t]^2*F[t]
     } 
   }
   

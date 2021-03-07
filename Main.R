@@ -44,11 +44,18 @@ returns <- data %>%
 
 stonkdata <- stonks %>%   
   filter(Symbol == ".AEX" & year(X1) > 2013) %>% 
-  select(X1,close_price,rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
+  select(X1,close_price, rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
   rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
-  mutate(RV = log(RV)) %>% 
+  mutate(RV = log(RV)
+         ) %>% 
   as_tsibble()
 
+y <- diff(log(stonkdata$Close))
+x <- log((y - mean(y))^2)
+
+rv <- stonkdata$RV[-1]
+stonks_data1 <- cbind(x, rv)
+  
 returns
 stonkdata
 
@@ -60,21 +67,32 @@ y <- rep(0,N)
 
 
 N <- 10000
-phi <- 0.98
-sigma <- 0.3317
-omega <- -0.21
+phi <- 0.980
+sigma <- 0.1082
+omega <- -0.207
 
 epsilon <- rnorm(N)
 eta <- rnorm(N,0,sqrt(sigma))
 
+h[1] <- omega
+
 for (t in 1:N){
-  h[t] <- omega + phi*h[t] + sigma*eta[t]
   y[t] <- h[t] + epsilon[t]
+  h[t+1] <- omega + phi*h[t] + sigma*eta[t]
 }
 
-par_ini <- c(0.1, 0.9, -0.06)
+source("functions.R")
+par_ini <- c(0.1082, 0.980, -0.207)
 ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini)
+
+source("functions.R")
+par_ini <- c(0.1082, 0.980, -0.207, 0.6)
+res2 <- state_space_parameter_optimizer(stonks_data1, par_ini)
+
+
+
+
 
 # e)
 # Overview of dataset
