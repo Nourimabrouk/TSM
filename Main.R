@@ -43,7 +43,7 @@ returns <- data %>%
          transformed = log(demeaned^2)) 
 
 stonkdata <- stonks %>%   
-  filter(Symbol == ".AEX" & year(X1) > 2013) %>% 
+  filter(Symbol == ".SPX" & year(X1) > 2015) %>% 
   select(X1,close_price, rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
   rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
   mutate(RV = log(RV)
