@@ -80,29 +80,21 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
   if (m > 1){
     x <- X[,-1]
     
-    sig_eta <- theta[1]
-    phi <- theta[2]
-    omega <- theta[3]
-    beta <- theta[4]
-    
   } else{
     x <- rep(0, n)
     
-    sig_eta <- theta[1]
-    phi <- theta[2]
-    omega <- theta[3]
-    beta <- 0
   }
 
   
   # Extract state space model parameter matrices
-  R <- sig_eta
+  R <- theta[1]
   H <- state_space_matrices$H
   Q <- state_space_matrices$Q
-  T <- phi
+  T <- theta[2]
   Z <- state_space_matrices$Z
+  Beta <- state_space_matrices$Beta
   
-  c <- omega
+  c <- theta[3]
   d <- state_space_matrices$d
   
   # Define Kalman filtering matrices
@@ -114,15 +106,15 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
   
   h_t <- rep(0, n)
   P_t <- rep(0, n)
+
   
-  
-  # Define initial values for unconditional mean and variacne resp.
+  # Define initial values for unconditional mean and variance resp.
   h[1] <- omega/(1 - T) 
   P[1] <- Q/(1 - T^2) 
   
   for (t in 1:n) {
     #print(cbind(x[t], h[t], y[t]))
-    v[t] <- (y[t] - d) - Z*h[t] - x[t]*beta
+    v[t] <- (y[t] - d) - Z*h[t] - x[t]*Beta
     F[t] <- Z^2*P[t] + H
     K[t] <- T*(P[t]/F[t])
 
@@ -131,7 +123,7 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
 
     if(t < n-1){
       h[t+1] <- c + T*h_t[t]
-      P[t+1] <- T^2*P_t[t] + Q*R^2
+      P[t+1] <- T^2*P_t[t] + Q*(R^2)
     } 
   }
   

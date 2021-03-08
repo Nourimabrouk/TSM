@@ -69,12 +69,13 @@ H <- sig_eps
 T <- par_ini[2]
 R <- par_ini[1]
 Q <- 1
+Beta <- 0
 
 c <- par_ini[3]
 d <- mean_u
 
-par_ini <- c(log(0.1082), log(0.980/(1-0.98)), -0.207)
-state_space_parameters <- data.frame(Z, H, T, R, Q, c, d)
+par_ini <- c(0.1082, 0.40, -0.207, 0.6)
+state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
 ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini, state_space_parameters)
 
@@ -108,7 +109,6 @@ res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_paramet
 
 
 source("functions.R")
-par_ini <- c(0.1082, 0.980, -0.207, 0.6)
 res2 <- state_space_parameter_optimizer(stonks_data1, par_ini, state_space_parameters)
 
 
