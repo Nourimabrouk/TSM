@@ -61,9 +61,9 @@ stonkdata
 
 source("functions.R")
 sig_eps <- (pi^2)/2
-sig_eta <-
 mean_u <- -1.27
 
+par_ini <- c(0.1082, 0.40, -0.207, 0.0)
 Z <- 1
 H <- sig_eps
 T <- par_ini[2]
@@ -74,7 +74,6 @@ Beta <- 0
 c <- par_ini[3]
 d <- mean_u
 
-par_ini <- c(0.1082, 0.40, -0.207, 0.6)
 state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
 ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini, state_space_parameters)
@@ -86,7 +85,7 @@ y_simulate <- rep(0,N)
 
 
 N <- 10000
-phi <- 0.5
+phi <- 0.99
 sigma <- 0.95
 omega <- 0.2
 
