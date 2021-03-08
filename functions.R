@@ -1,6 +1,6 @@
-state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matrices){
+optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_output){
   
-  results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par, state_space_matrices), method="BFGS")
+  results <- optim(par=phi_ini, fn=function(par) - compute_loglikelihood(df_data, par, state_space_matrices), method="BFGS")
   
   theta_hat <- results$par
 
@@ -11,7 +11,14 @@ state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matric
   
   theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
   
+  if(print_output == TRUE){
+  print_optimizer_output(theta_star, results)
+  }
+  return(theta_hat)
   
+}
+
+print_optimizer_output <- function(theta_star, results){
   print("The parameter estimates are:")
   print(round(theta_star, 4))
   
@@ -24,13 +31,14 @@ state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matric
   cat("Exit flag:")
   print(results$convergence) # zero indicates succesfull optimization
   
-  return(theta_hat)
+  # Reporting estimates:
+  # Parameter, logtransformed parameter, SE(logtransformedparameter)
+  # As in page 320 of text book
   
 }
 
-GetloglikGauss<- function(data, theta, state_space_matrices){
+compute_loglikelihood<- function(data, theta, state_space_matrices){
 
-  
   y <- as.matrix(data)
   n <- length(y)
   
@@ -41,7 +49,7 @@ GetloglikGauss<- function(data, theta, state_space_matrices){
   
   theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
   
-  kf_state <- KalmanFilterSV(data, theta_star, state_space_matrices)
+  kf_state <- compute_kalmanfilter(data, theta_star, state_space_matrices)
   
   v <- kf_state$v
   F <- kf_state$F
@@ -54,8 +62,7 @@ GetloglikGauss<- function(data, theta, state_space_matrices){
   
 }
 
-
-KalmanFilterSV <- function(data, theta, state_space_matrices){
+compute_kalmanfilter <- function(data, theta, state_space_matrices){
 
   
   X <- as.matrix(data)
@@ -112,83 +119,42 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
     } 
   }
   
-  kalmanfiltersv <- data.frame(h, P, v, F, K)
+  output_kalmanfilter <- data.frame(h, P, v, F, K)
   
-  return(kalmanfiltersv)
+  return(output_kalmanfilter)
 }
 
-smoothed_state <- function(df_data, df_kf){
 
-  y <- as.matrix(df_data)
-  a <- df_kf$a
-  P <- df_kf$P
-  v <- df_kf$v
-  F <- df_kf$F
-  K <- df_kf$K
+
+perform_QML_routine = function(returns, stockdata){
   
-  n <- length(v)
-  alpha <- rep(0, n) # smoothed stated
-  N <- rep(0, n)     # smoothed state error variance
-  r <- rep(0, n)
-  V <- rep(0, n)     # smoothed state variance
-  L <- 1-K
+  # Create transformed data matrix
+  y = diff(log(stockdata$Close))
+  x <- log((y - mean(y))^2)
+  rv <- stockdata$RV[-1]
   
-  N[n] <- 0
-  r[n] <- 0
+  input_matrix_stocks <- cbind(x, rv)
+  input_returns <- returns$transformed
   
-  for (j in n:2){ #backward recursion
-    N[j-1] <- (1/F[j]) + (L[j]^2) * N[j]
-    V[j] <- P[j] - (P[j]^2)*N[j-1] 
-    
-    if (is.nan(y[j]) || is.na(y[j])){
-      N[j-1] <- N[j]
-      V[j] <- P[j] - (P[j]^2)*N[j-1] 
-      
-      r[j-1] <- r[j]
-    }
-    else {                   
-      r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
-    }
-    alpha[j] <- a[j] + P[j]*r[j-1]
-  }
+  # Initialise parameters
+  sig_eps <- (pi^2)/2 # Given in assignment
+  mean_u <- -1.27 # Given in assignment
   
-  N[1] <- (1/F[2]) + (L[2]^2) * N[2]
-  N_0 <- (1/F[1]) + (L[1]^2) * N[1]
+  par_ini <- c(0.1082, 0.991, -0.207, 0.0)
   
-  V[1] <- P[1] - (P[1]^2)*N_0 
+  Beta <- 0
   
-  r_0 <- (v[1]/F[1]) + L[1]*r[1]
-  alpha[1] <- a[1] + P[1]*r_0
+  state_space_parameters <- data.frame(
+    Q = 1,
+    Z = 1,
+    H = sig_eps,
+    R = par_ini[1],
+    T = par_ini[2],
+    c = par_ini[3],
+    d = mean_u,
+    Beta = 0
+  )
+  res <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
+  res2 <- optimize_parameters(input_matrix_stocks, par_ini, state_space_parameters, TRUE)
   
-  alpha_lb <- alpha - 1.645*sqrt(V)     
-  alpha_ub <- alpha + 1.645*sqrt(V)
-  
-  SmoothedState_df <- data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
-  
-  return (SmoothedState_df)
 }
-
-#simulation -----
-
-# h <- rep(0,N)
-# y_simulate <- rep(0,N)
-# 
-# 
-# N <- 10000
-# phi <- 0.99
-# sigma <- 0.08
-# omega <- 0.2
-# 
-# epsilon <- rnorm(N)
-# eta <- rnorm(N,0, sqrt(sigma))
-# 
-# h[1] <- omega
-# 
-# for (t in 1:N){
-#   y_simulate[t] <- h[t] + epsilon[t]
-#   h[t+1] <- omega + phi*h[t] + sigma*eta[t]
-# }
-# 
-# source("functions.R")
-# res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_parameters)
-
