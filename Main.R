@@ -37,35 +37,3 @@ stockdata <- stocks %>%
 
 perform_QML_routine(returns, stockdata)
 
-# ------
-sig_eps <- (pi^2)/2
-mean_u <- -1.27
-par_ini <- c(0.1082, 0.991, -0.207, 0.0)
-
-state_space_parameters <- data.frame(Z = 1,
-                                     H = sig_eps,
-                                     T = par_ini[2],
-                                     R = par_ini[1],
-                                     Q = 1,
-                                     c = par_ini[3],
-                                     Beta = par_ini[4],
-                                     d = mean_u)
-
-y <- diff(log(stockdata$Close))
-x <- log((y - mean(y))^2)
- 
-stock_data <- cbind(x, stockdata$RV[-1])
-ret_trans <- returns$transformed
-
-res <- optimize_parameters(ret_trans, par_ini, state_space_parameters,TRUE)
-res2 <- optimize_parameters(stock_data, par_ini, state_space_parameters,TRUE)
-
-outputKalman <- compute_kalmanfilter(x, res, state_space_parameters)
-outputSmooth <- compute_smoothed_state(x,res,outputKalman)
-
-
-
-
-
-
-

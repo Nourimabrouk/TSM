@@ -156,8 +156,19 @@ perform_QML_routine = function(returns, stockdata){
   res <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
   res2 <- optimize_parameters(input_matrix_stocks, par_ini, state_space_parameters, TRUE)
   
+  stock_data <- cbind(x, stockdata$RV[-1])
+  ret_trans <- returns$transformed
+  
+  params_returns <- optimize_parameters(input_returns, par_ini, state_space_parameters,TRUE)
+  outputKalman_returns <- compute_kalmanfilter(input_returns, params_returns, state_space_parameters)
+  outputSmooth_returns <- compute_smoothed_state(input_returns,params_returns, outputKalman)
+  
+  params_stocks <- optimize_parameters(input_matrix_stocks, par_ini, state_space_parameters,TRUE)
+  outputKalman_stocks <- compute_kalmanfilter(input_matrix_stocks[,1], params_returns, state_space_parameters)
+  outputSmooth_stocks <- compute_smoothed_state(input_matrix_stocks[,1],params_returns,outputKalman)
+  
 }
-# SmoothedState
+
 compute_smoothed_state <- function(data, theta, kf){
   "
   Goal: Compute smoothed state through reverse loop 
