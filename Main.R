@@ -18,8 +18,7 @@ options(warn=-1)
 # Data import & cleaning --------
 
 data <- read.delim(here('Data', 'sv.dat'))
-stonks <- read_csv(here('Data', 'oxfordmanrealizedvolatilityindices.csv'))
-
+stocks <- read_csv(here('Data', 'oxfordmanrealizedvolatilityindices.csv'))
 
 returns <- data %>% 
   mutate(index = 1:nrow(data)) %>% 
@@ -29,41 +28,23 @@ returns <- data %>%
   mutate(demeaned = (x - mean(x))/100,
          transformed = log(demeaned^2)) 
 
-stonkdata <- stonks %>%   
+stockdata <- stocks %>%   
   filter(Symbol == ".SPX" & year(X1) > 2015) %>% 
   select(X1,close_price, rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
   rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
-  mutate(RV = log(RV)
-         ) %>% 
+  mutate(RV = log(RV)) %>% 
   as_tsibble()
 
-# QML / cde?
-y <- diff(log(stonkdata$Close))
-x <- log((y - mean(y))^2)
+perform_QML_routine(returns, stockdata)
 
-rv <- stonkdata$RV[-1]
-stonks_data1 <- cbind(x, rv)
-  
-sig_eps <- (pi^2)/2
-mean_u <- -1.27
 
-par_ini <- c(0.1082, 0.991, -0.207, 0.0)
-Z <- 1
-H <- sig_eps
-T <- par_ini[2]
-R <- par_ini[1]
-Q <- 1
-Beta <- 0
 
-c <- par_ini[3]
-d <- mean_u
 
-state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
-ret_trans <- returns$transformed
-res <- state_space_parameter_optimizer(ret_trans, par_ini, state_space_parameters)
-res2 <- state_space_parameter_optimizer(stonks_data1, par_ini, state_space_parameters)
 
-# e)
+
+
+
+
 
 
 

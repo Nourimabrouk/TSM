@@ -15,6 +15,7 @@ ggplot(returns, aes(index, demeaned))+
   geom_hline(yintercept = 0)+
   scale_y_continuous(breaks = seq(-.05,.05,.025))+
   scale_x_continuous(breaks = seq(0,900,100))
+
 # # 14.5 (ii)
 # ggplot(returns, aes(index))+
 #   theme_minimal()+
