@@ -61,15 +61,21 @@ stonkdata
 
 source("functions.R")
 
+source("functions.R")
+par_ini <- c(0.1082, 0.980, -0.207)
+ret_trans <- returns$transformed
+res <- state_space_parameter_optimizer(ret_trans, par_ini)
+
+
 
 h <- rep(0,N)
-y <- rep(0,N)
+y_simulate <- rep(0,N)
 
 
 N <- 10000
-phi <- 0.980
-sigma <- 0.1082
-omega <- -0.207
+phi <- 0.5
+sigma <- 0.95
+omega <- 0.2
 
 epsilon <- rnorm(N)
 eta <- rnorm(N,0,sqrt(sigma))
@@ -77,14 +83,17 @@ eta <- rnorm(N,0,sqrt(sigma))
 h[1] <- omega
 
 for (t in 1:N){
-  y[t] <- h[t] + epsilon[t]
+  y_simulate[t] <- h[t] + epsilon[t]
   h[t+1] <- omega + phi*h[t] + sigma*eta[t]
 }
 
+
+
 source("functions.R")
-par_ini <- c(0.1082, 0.980, -0.207)
-ret_trans <- returns$transformed
-res <- state_space_parameter_optimizer(ret_trans, par_ini)
+res2 <- state_space_parameter_optimizer(y_simulate, par_ini)
+
+
+
 
 source("functions.R")
 par_ini <- c(0.1082, 0.980, -0.207, 0.6)
