@@ -8,7 +8,7 @@ state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matric
   theta_hat <- results$par
 
   sigma_star <- exp(theta_hat[1])
-  phi_star <- exp(theta_hat[2])/(1+exp(theta_hat[2]))
+  phi_star <- exp(theta_hat[2])/(1 + exp(theta_hat[2]))
   omega_star <- theta_hat[3]
   beta_star <- theta_hat[4]
   
@@ -44,7 +44,7 @@ GetloglikGauss<- function(data, theta, state_space_matrices){
   n <- length(y)
   
   sigma_star <- exp(theta[1])
-  phi_star <- exp(theta[2])/(1+exp(theta[2]))
+  phi_star <- exp(theta[2])/(1 + exp(theta[2]))
   omega_star <- theta[3]
   beta_star <- theta[4]
   
@@ -56,7 +56,7 @@ GetloglikGauss<- function(data, theta, state_space_matrices){
   F <- kf_state$F
   
   log_density <- -(1/2)*log(2*pi) - (1/2)*log(abs(F)) - (1/2)*(v^2)/F
-  log_density[is.nan(log_density)] <- 0
+  #log_density[is.nan(log_density)] <- 0
   loglikelihood <- (sum(log_density))
   
   return(loglikelihood)

@@ -63,7 +63,7 @@ source("functions.R")
 sig_eps <- (pi^2)/2
 mean_u <- -1.27
 
-par_ini <- c(0.1082, 0.40, -0.207, 0.0)
+par_ini <- c(0.1082, 0.991, -0.207, 0.0)
 Z <- 1
 H <- sig_eps
 T <- par_ini[2]
@@ -78,40 +78,7 @@ state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
 ret_trans <- returns$transformed
 res <- state_space_parameter_optimizer(ret_trans, par_ini, state_space_parameters)
 
-
-
-h <- rep(0,N)
-y_simulate <- rep(0,N)
-
-
-N <- 10000
-phi <- 0.99
-sigma <- 0.08
-omega <- 0.2
-
-epsilon <- rnorm(N)
-eta <- rnorm(N,0,sqrt(sigma))
-
-h[1] <- omega
-
-for (t in 1:N){
-  y_simulate[t] <- h[t] + epsilon[t]
-  h[t+1] <- omega + phi*h[t] + sigma*eta[t]
-}
-
-
-
-source("functions.R")
-res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_parameters)
-
-
-
-
-source("functions.R")
 res2 <- state_space_parameter_optimizer(stonks_data1, par_ini, state_space_parameters)
-
-
-
 
 
 # e)
@@ -150,3 +117,31 @@ ggplot(returns, aes(index, demeaned))+
 # ggplot(returns, aes(index, SE_volmeasure))+
 #   theme_minimal()+
 #   geom_line()
+
+
+
+# h <- rep(0,N)
+# y_simulate <- rep(0,N)
+# 
+# 
+# N <- 10000
+# phi <- 0.99
+# sigma <- 0.08
+# omega <- 0.2
+# 
+# epsilon <- rnorm(N)
+# eta <- rnorm(N,0, sqrt(sigma))
+# 
+# h[1] <- omega
+# 
+# for (t in 1:N){
+#   y_simulate[t] <- h[t] + epsilon[t]
+#   h[t+1] <- omega + phi*h[t] + sigma*eta[t]
+# }
+# 
+# source("functions.R")
+# res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_parameters)
+
+
+
+
