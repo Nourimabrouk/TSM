@@ -1,12 +1,21 @@
-state_space_parameter_optimizer <- function(df_data, phi_ini){
+
+
+# state_space_parameter_optimizer
+state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matrices){
   
-  print(phi_ini)
-  results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par), method="BFGS")
+  results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par, state_space_matrices), method="BFGS")
   
   theta_hat <- results$par
 
+  sigma_star <- exp(theta_hat[1])
+  phi_star <- exp(theta_hat[2])/exp(1 + theta_hat[2])
+  omega_star <- theta_hat[3]
+  
+  theta_star <- c(sigma_star, phi_star, omega_star)
+  
+  
   print("The parameter estimates are:")
-  print(round(theta_hat, 4))
+  print(round(theta_star, 4))
   
   print("The log-likelihood value is:")
   print(results$value)
@@ -21,7 +30,8 @@ state_space_parameter_optimizer <- function(df_data, phi_ini){
   
 }
 
-GetloglikGauss<- function(data, theta){
+#GetloglikGauss
+GetloglikGauss<- function(data, theta, state_space_matrices){
   "
   Goal: Compute Gaussian log likelihood defined in equation 7.2 in DK
   Input: data matrix, parameters of interest vector theta
@@ -32,7 +42,13 @@ GetloglikGauss<- function(data, theta){
   y <- as.matrix(data)
   n <- length(y)
   
-  kf_state <- KalmanFilterSV(data, theta)
+  sigma_star <- exp(theta[1])
+  phi_star <- exp(theta[2])/exp(1 + theta[2])
+  omega_star <- theta[3]
+  
+  theta_star <- c(sigma_star, phi_star, omega_star)
+  
+  kf_state <- KalmanFilterSV(data, theta_star, state_space_matrices)
   
   v <- kf_state$v
   F <- kf_state$F
@@ -45,13 +61,16 @@ GetloglikGauss<- function(data, theta){
   
 }
 
-KalmanFilterSV <- function(data, theta){
+
+# KalmanFilterSV
+KalmanFilterSV <- function(data, theta, state_space_matrices){
   "
   Goal: Perform Kalman filter for state space model as defined in eq 4.2 and slide 21 of Week III
   Input: data matrix, parameters of interest vector theta
   Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
   
   "
+  
   X <- as.matrix(data)
   n <- dim(X)[1]
   m <- dim(X)[2]
@@ -61,28 +80,22 @@ KalmanFilterSV <- function(data, theta){
   if (m > 1){
     x <- X[,-1]
     
-    sig_eta <- theta[1]
-    phi <- theta[2]
-    omega <- theta[3]
-    beta <- theta[4]
-    
   } else{
     x <- rep(0, n)
     
-    sig_eta <- theta[1]
-    phi <- theta[2]
-    omega <- theta[3]
-    beta <- 0
   }
+
   
-  sig_u <- pi^2/2    
-  mean_u <- -1.27
+  # Extract state space model parameter matrices
+  R <- theta[1]
+  H <- state_space_matrices$H
+  Q <- state_space_matrices$Q
+  T <- theta[2]
+  Z <- state_space_matrices$Z
+  Beta <- state_space_matrices$Beta
   
-  R_t <- 1
-  H_t <- sig_u
-  Q_t <- sig_eta
-  T_t <- phi
-  
+  c <- theta[3]
+  d <- state_space_matrices$d
   
   # Define Kalman filtering matrices
   h <- rep(0, n)
@@ -91,19 +104,26 @@ KalmanFilterSV <- function(data, theta){
   F <- rep(0, n)
   K <- rep(0, n)
   
-  # Define initial values for unconditional mean and variacne resp.
-  h[1] <- omega/(1 - T_t) 
-  P[1] <- Q_t/(1 - T_t^2) 
+  h_t <- rep(0, n)
+  P_t <- rep(0, n)
+
+  
+  # Define initial values for unconditional mean and variance resp.
+  h[1] <- omega/(1 - T) 
+  P[1] <- Q/(1 - T^2) 
   
   for (t in 1:n) {
     #print(cbind(x[t], h[t], y[t]))
-    v[t] <- (y[t] - mean_u) - h[t] - x[t]*beta
-    F[t] <- P[t] + H_t
-    K[t] <- T_t*(P[t]/F[t])
+    v[t] <- (y[t] - d) - Z*h[t] - x[t]*Beta
+    F[t] <- Z^2*P[t] + H
+    K[t] <- T*(P[t]/F[t])
+
+    h_t[t] <- h[t] + P[t]*Z*v[t]/F[t]
+    P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
 
     if(t < n-1){
-      h[t+1] <- omega + T_t*h[t] + K[t]*v[t]
-      P[t+1] <- T_t^2*P[t] + (Q_t^2)*R_t - K[t]^2*F[t]
+      h[t+1] <- c + T*h_t[t]
+      P[t+1] <- T^2*P_t[t] + Q*(R^2)
     } 
   }
   
@@ -112,6 +132,7 @@ KalmanFilterSV <- function(data, theta){
   return(kalmanfiltersv)
 }
 
+# SmoothedState
 smoothed_state <- function(df_data, df_kf){
   "
   Goal: Compute smoothed state through reverse loop
@@ -169,21 +190,4 @@ smoothed_state <- function(df_data, df_kf){
   
   return (SmoothedState_df)
 }
-
-# Particle filter
-# ( Ask karim )
-particlefilter <- function(data){
-  tao = 1000 # burn in
-  n = length(data)
-  for (t in (tao + 1): n){
-    # Discard start up sample / burnin
-    
-    # Sample a_t (12.16)
-    # Compute weights & Normalise -> as 12.17
-    # Compute x^_t
-    # Resample
-    print("particle filter")
-    
-  }
-  }
 

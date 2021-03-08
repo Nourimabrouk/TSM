@@ -15,7 +15,7 @@ This code applies CH 2 of the book including the figures presented to our own ti
 rm(list=ls())
 # Imports ----------
 
-source("Functions.R")
+source("functions.R")
 source("Plotting.R")
 
 library(here)
@@ -29,7 +29,7 @@ library(fable)
 setwd(here())
 options(warn=-1)
 
-# Data cleaning--------
+# Data import--------
 
 data <- read.delim(here('Data', 'sv.dat'))
 stonks <- read_csv(here('Data', 'oxfordmanrealizedvolatilityindices.csv'))
@@ -43,29 +43,52 @@ returns <- data %>%
          transformed = log(demeaned^2)) 
 
 stonkdata <- stonks %>%   
-  filter(Symbol == ".AEX" & year(X1) > 2013) %>% 
+  filter(Symbol == ".SPX" & year(X1) > 2015) %>% 
   select(X1,close_price, rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
   rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
   mutate(RV = log(RV)
          ) %>% 
   as_tsibble()
-# d)----------
+
 y <- diff(log(stonkdata$Close))
 x <- log((y - mean(y))^2)
 
 rv <- stonkdata$RV[-1]
 stonks_data1 <- cbind(x, rv)
-
+  
 returns
 stonkdata
 
-N <- 10000
-h <- rep(0,N)
-y <- rep(0,N)
+source("functions.R")
+sig_eps <- (pi^2)/2
+sig_eta <-
+mean_u <- -1.27
 
-phi <- 0.980
-sigma <- 0.1082
-omega <- -0.207
+Z <- 1
+H <- sig_eps
+T <- par_ini[2]
+R <- par_ini[1]
+Q <- 1
+Beta <- 0
+
+c <- par_ini[3]
+d <- mean_u
+
+par_ini <- c(0.1082, 0.40, -0.207, 0.6)
+state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
+ret_trans <- returns$transformed
+res <- state_space_parameter_optimizer(ret_trans, par_ini, state_space_parameters)
+
+
+
+h <- rep(0,N)
+y_simulate <- rep(0,N)
+
+
+N <- 10000
+phi <- 0.5
+sigma <- 0.95
+omega <- 0.2
 
 epsilon <- rnorm(N)
 eta <- rnorm(N,0,sqrt(sigma))
@@ -73,25 +96,35 @@ eta <- rnorm(N,0,sqrt(sigma))
 h[1] <- omega
 
 for (t in 1:N){
-  y[t] <- h[t] + epsilon[t]
+  y_simulate[t] <- h[t] + epsilon[t]
   h[t+1] <- omega + phi*h[t] + sigma*eta[t]
 }
 
-par_ini <- c(0.1082, 0.980, -0.207)
-ret_trans <- returns$transformed
-res <- state_space_parameter_optimizer(ret_trans, par_ini)
 
-par_ini <- c(0.1082, 0.980, -0.207, 0.6)
-res2 <- state_space_parameter_optimizer(stonks_data1, par_ini)
 
-# e) ------
+source("functions.R")
+res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_parameters)
+
+
+
+
+source("functions.R")
+res2 <- state_space_parameter_optimizer(stonks_data1, par_ini, state_space_parameters)
+
+
+
+
+
+# e)
 # Overview of dataset
 stonks %>% head
 colnames(stonks)
 unique(stonks$Symbol)
 range(stonks$X1)
 
-# Quickplots --------
+# Data prep
+
+#Quickplots
 autoplot(returns, demeaned)
 autoplot(returns, transformed)
 
@@ -118,7 +151,3 @@ ggplot(returns, aes(index, demeaned))+
 # ggplot(returns, aes(index, SE_volmeasure))+
 #   theme_minimal()+
 #   geom_line()
-
-# f) ------
-particlefilter(returns)
-particlefilter(stonkdata)
