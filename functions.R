@@ -124,8 +124,6 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   return(output_kalmanfilter)
 }
 
-
-
 perform_QML_routine = function(returns, stockdata){
   
   # Create transformed data matrix

@@ -9,7 +9,7 @@ perform_particlefilter_routine <- function(input){
   
 for (t in 1:n) {
   values = draw_values(n, sigma_eta, phi) # Vector of length n : theta_0 as random sample from normal unconditional distribution of theta
-  normalised_weights = compute__normalised_weights(sigma, theta_t, y_t)
+  normalised_weights = compute_normalised_weights(sigma, theta_t, y_t)
   c(att, ptt) = compute_att_ptt(theta_t, normalised_weights)
   a_t_i = resampling()
   } 
@@ -30,18 +30,22 @@ compute_att_ptt<- function(weights, theta){
   a_hat_t_t = sum ( weights * theta_t_i)
   p_hat_t_t = sum ( weights * theta_t_i ^ 2 - a_hat_t_t ^ 2 )
   
-  return(c(a_hat_t_t, p_hat_t_t))
+  return(cbind(a_hat_t_t, p_hat_t_t, weights))
 }
-resampling<- function(list_att_ptt){
-  # stratified sampling 12.3.3 ? 
-  
-  # Resampling from pg 281 or 284
-  
-  # resample with replacements and weights
-  input = data.frame(
-    sample = 1:100)
+
+# placeholders
+a_hat_t_t = 1:100
+p_hat_t_t = 1:100
+weights = 100:1 / sum(100:1)
+df_att_ptt_weights <- cbind(a_hat_t_t, p_hat_t_t, weights)
+
+resampling<- function(df_att_ptt_weights){
+  # Resampling from pg 284
+
+  att = df_att_ptt_weights[,1]
+  weights = df_att_ptt_weights[,3]
   weights = abs(rnorm(100,1,.5))
   resampled = sample_n(input, 100, replace = TRUE, weight = input$weights)
-
-  resampled
+  
+  return(resampled)
 }
