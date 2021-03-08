@@ -3,7 +3,6 @@
 # state_space_parameter_optimizer
 state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matrices){
   
-  print(phi_ini)
   results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par, state_space_matrices), method="BFGS")
   
   theta_hat <- results$par
@@ -94,9 +93,7 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
     omega <- theta[3]
     beta <- 0
   }
-  
-  sig_u <- pi^2/2    
-  mean_u <- -1.27
+
   
   # Extract state space model parameter matrices
   R <- sig_eta
@@ -104,6 +101,9 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
   Q <- state_space_matrices$Q
   T <- phi
   Z <- state_space_matrices$Z
+  
+  c <- omega
+  d <- state_space_matrices$d
   
   # Define Kalman filtering matrices
   h <- rep(0, n)
@@ -122,7 +122,7 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
   
   for (t in 1:n) {
     #print(cbind(x[t], h[t], y[t]))
-    v[t] <- (y[t] - mean_u) - Z*h[t] - x[t]*beta
+    v[t] <- (y[t] - d) - Z*h[t] - x[t]*beta
     F[t] <- Z^2*P[t] + H
     K[t] <- T*(P[t]/F[t])
 
@@ -130,7 +130,7 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
     P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
 
     if(t < n-1){
-      h[t+1] <- omega + T*h_t[t]
+      h[t+1] <- c + T*h_t[t]
       P[t+1] <- T^2*P_t[t] + Q*R^2
     } 
   }

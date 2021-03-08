@@ -60,7 +60,6 @@ returns
 stonkdata
 
 source("functions.R")
-
 sig_eps <- (pi^2)/2
 sig_eta <-
 mean_u <- -1.27
