@@ -1,6 +1,3 @@
-
-
-# state_space_parameter_optimizer
 state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matrices){
   
   results <- optim(par=phi_ini, fn=function(par) - GetloglikGauss(df_data, par, state_space_matrices), method="BFGS")
@@ -31,14 +28,8 @@ state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matric
   
 }
 
-#GetloglikGauss
 GetloglikGauss<- function(data, theta, state_space_matrices){
-  "
-  Goal: Compute Gaussian log likelihood defined in equation 7.2 in DK
-  Input: data matrix, parameters of interest vector theta
-  Output: loglikihood function value
-  
-  "
+
   
   y <- as.matrix(data)
   n <- length(y)
@@ -64,14 +55,8 @@ GetloglikGauss<- function(data, theta, state_space_matrices){
 }
 
 
-# KalmanFilterSV
 KalmanFilterSV <- function(data, theta, state_space_matrices){
-  "
-  Goal: Perform Kalman filter for state space model as defined in eq 4.2 and slide 21 of Week III
-  Input: data matrix, parameters of interest vector theta
-  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
-  
-  "
+
   
   X <- as.matrix(data)
   n <- dim(X)[1]
@@ -132,14 +117,8 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
   return(kalmanfiltersv)
 }
 
-# SmoothedState
 smoothed_state <- function(df_data, df_kf){
-  "
-  Goal: Compute smoothed state through reverse loop
-  Input: df_kf (output of kalman filter function)
-  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
-  
-  "
+
   y <- as.matrix(df_data)
   a <- df_kf$a
   P <- df_kf$P
@@ -181,8 +160,6 @@ smoothed_state <- function(df_data, df_kf){
   r_0 <- (v[1]/F[1]) + L[1]*r[1]
   alpha[1] <- a[1] + P[1]*r_0
   
-  
-  #upper and lower bounds of alpha
   alpha_lb <- alpha - 1.645*sqrt(V)     
   alpha_ub <- alpha + 1.645*sqrt(V)
   
@@ -190,4 +167,28 @@ smoothed_state <- function(df_data, df_kf){
   
   return (SmoothedState_df)
 }
+
+#simulation -----
+
+# h <- rep(0,N)
+# y_simulate <- rep(0,N)
+# 
+# 
+# N <- 10000
+# phi <- 0.99
+# sigma <- 0.08
+# omega <- 0.2
+# 
+# epsilon <- rnorm(N)
+# eta <- rnorm(N,0, sqrt(sigma))
+# 
+# h[1] <- omega
+# 
+# for (t in 1:N){
+#   y_simulate[t] <- h[t] + epsilon[t]
+#   h[t+1] <- omega + phi*h[t] + sigma*eta[t]
+# }
+# 
+# source("functions.R")
+# res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_parameters)
 
