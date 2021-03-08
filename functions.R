@@ -19,7 +19,8 @@ optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_ou
 }
 
 print_optimizer_output <- function(theta_star, results){
-  print("The parameter estimates are:")
+ 
+   print("The parameter estimates are:")
   print(round(theta_star, 4))
   
   print("The log-likelihood value is:")
@@ -150,9 +151,64 @@ perform_QML_routine = function(returns, stockdata){
     T = par_ini[2],
     c = par_ini[3],
     d = mean_u,
-    Beta = 0
+    Beta = par_ini[4]
   )
   res <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
   res2 <- optimize_parameters(input_matrix_stocks, par_ini, state_space_parameters, TRUE)
   
+}
+# SmoothedState
+compute_smoothed_state <- function(data, theta, kf){
+  "
+  Goal: Compute smoothed state through reverse loop 
+  Input: theta, kf (Output of KalmanfilterSV)
+  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
+  
+  "
+  y <- as.matrix(data)
+  h <- kf$h
+  P <- kf$P
+  v <- kf$v
+  F <- kf$F
+  K <- kf$K
+  
+  phi <- theta[2]
+  Z <- 1
+  
+  n <- length(v)
+  alpha <- rep(0, n) # smoothed stated
+  N <- rep(0, n)     # smoothed state error variance
+  r <- rep(0, n)
+  V <- rep(0, n)     # smoothed state variance
+  L <- phi-K*Z
+  
+  N[n] <- 0
+  r[n] <- 0
+  
+  for (j in (n):2){ #backward recursion
+    N[j-1] <- (1/F[j]) + (L[j]^2) * N[j]
+    V[j] <- P[j] - (P[j]^2)*N[j-1] 
+    
+    if (is.nan(y[j]) || is.na(y[j])){
+      N[j-1] <- N[j]
+      V[j] <- P[j] - (P[j]^2)*N[j-1] 
+      r[j-1] <- r[j]
+    }
+    else {                   
+      r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
+    }
+    alpha[j] <- h[j] + P[j]*r[j-1]
+  }
+  
+  N[1] <- (1/F[2]) + (L[2]^2) * N[2]
+  N_0 <- (1/F[1]) + (L[1]^2) * N[1]
+  
+  V[1] <- P[1] - (P[1]^2)*N_0 
+  
+  r_0 <- (v[1]/F[1]) + L[1]*r[1]
+  alpha[1] <- h[1] + P[1]*r_0
+  
+  Smoothedstate <- data.frame(alpha, r, N, V)
+  
+  return (Smoothedstate)
 }
