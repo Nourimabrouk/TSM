@@ -86,7 +86,7 @@ y_simulate <- rep(0,N)
 
 N <- 10000
 phi <- 0.99
-sigma <- 0.95
+sigma <- 0.08
 omega <- 0.2
 
 epsilon <- rnorm(N)

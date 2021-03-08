@@ -8,7 +8,7 @@ state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matric
   theta_hat <- results$par
 
   sigma_star <- exp(theta_hat[1])
-  phi_star <- theta_hat[2]
+  phi_star <- exp(theta_hat[2])/(1+exp(theta_hat[2]))
   omega_star <- theta_hat[3]
   beta_star <- theta_hat[4]
   
@@ -44,7 +44,7 @@ GetloglikGauss<- function(data, theta, state_space_matrices){
   n <- length(y)
   
   sigma_star <- exp(theta[1])
-  phi_star <- theta[2]
+  phi_star <- exp(theta[2])/(1+exp(theta[2]))
   omega_star <- theta[3]
   beta_star <- theta[4]
   
@@ -108,8 +108,6 @@ KalmanFilterSV <- function(data, theta, state_space_matrices){
   h_t <- rep(0, n)
   P_t <- rep(0, n)
 
-  print(state_space_matrices)
-  
   # Define initial values for unconditional mean and variance resp.
   h[1] <- c/(1 - T) 
   P[1] <- Q/(1 - T^2) 
