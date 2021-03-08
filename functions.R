@@ -9,10 +9,10 @@ state_space_parameter_optimizer <- function(df_data, phi_ini, state_space_matric
   theta_hat <- results$par
 
   sigma_star <- exp(theta_hat[1])
-  phi <- exp(theta_hat[2])/exp(1 + theta_hat[2])
-  omega <- theta_hat[3]
+  phi_star <- exp(theta_hat[2])/exp(1 + theta_hat[2])
+  omega_star <- theta_hat[3]
   
-  theta_star <- c(sigma_star, phi, omega)
+  theta_star <- c(sigma_star, phi_star, omega_star)
   
   
   print("The parameter estimates are:")

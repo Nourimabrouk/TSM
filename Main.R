@@ -61,10 +61,23 @@ stonkdata
 
 source("functions.R")
 
-source("functions.R")
-par_ini <- c(0.1082, 0.980, -0.207)
+sig_eps <- (pi^2)/2
+sig_eta <-
+mean_u <- -1.27
+
+Z <- 1
+H <- sig_eps
+T <- par_ini[2]
+R <- par_ini[1]
+Q <- 1
+
+c <- par_ini[3]
+d <- mean_u
+
+par_ini <- c(log(0.1082), log(0.980/(1-0.98)), -0.207)
+state_space_parameters <- data.frame(Z, H, T, R, Q, c, d)
 ret_trans <- returns$transformed
-res <- state_space_parameter_optimizer(ret_trans, par_ini)
+res <- state_space_parameter_optimizer(ret_trans, par_ini, state_space_parameters)
 
 
 
@@ -90,14 +103,14 @@ for (t in 1:N){
 
 
 source("functions.R")
-res2 <- state_space_parameter_optimizer(y_simulate, par_ini)
+res2 <- state_space_parameter_optimizer(y_simulate, par_ini, state_space_parameters)
 
 
 
 
 source("functions.R")
 par_ini <- c(0.1082, 0.980, -0.207, 0.6)
-res2 <- state_space_parameter_optimizer(stonks_data1, par_ini)
+res2 <- state_space_parameter_optimizer(stonks_data1, par_ini, state_space_parameters)
 
 
 
