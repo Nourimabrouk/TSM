@@ -35,16 +35,38 @@ stockdata <- stocks %>%
   mutate(RV = log(RV)) %>% 
   as_tsibble()
 
-perform_QML_routine(returns, stockdata)
+
+source("functions.R")
+par_ini <- c(0.1, 0.98, -0.201, 0.9)
+perform_QML_routine(returns, stockdata, par_ini)
+
+# QML / cde?
+y <- diff(log(stonkdata$Close))
+x <- log((y - mean(y))^2)
+
+rv <- stonkdata$RV[-1]
+stonks_data1 <- cbind(x, rv)
+  
+sig_eps <- (pi^2)/2
+mean_u <- -1.27
 
 
+Z <- 1
+H <- sig_eps
+T <- par_ini[2]
+R <- par_ini[1]
+Q <- 1
+Beta <- par_ini[4]
 
+c <- par_ini[3]
+d <- mean_u
 
+state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
+ret_trans <- returns$transformed
+res <- optimize_parameters(ret_trans, par_ini, state_space_parameters, TRUE)
+res2 <- optimize_parameters(stonks_data1, par_ini, state_space_parameters)
 
-
-
-
-
+# e)
 
 
 
