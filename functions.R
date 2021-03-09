@@ -7,7 +7,7 @@ descriptive_stats <- function(data){
   skew <- skewness(data)
   kurt <- kurtosis(data)
   
-  descriptive <- c(number_observations,mean,var,min,max,skew,kurt)
+  descriptive <- data.frame(number_observations,mean,var,min,max,skew,kurt)
   return(descriptive)
 }
   
@@ -79,7 +79,6 @@ compute_loglikelihood<- function(data, theta, state_space_matrices){
 
 compute_kalmanfilter <- function(data, theta, state_space_matrices){
 
-  
   X <- as.matrix(data)
   n <- dim(X)[1]
   m <- dim(X)[2]
@@ -88,10 +87,10 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
 
   if (m > 1){
     x <- X[,-1]
-    
+    Beta <- theta[4]
   } else{
     x <- rep(0, n)
-    
+    Beta <- 0
   }
 
   # Extract state space model parameter matrices
@@ -100,7 +99,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   Q <- state_space_matrices$Q
   T <- theta[2]
   Z <- state_space_matrices$Z
-  Beta <- theta[4]
+
   
   c <- theta[3]
   d <- state_space_matrices$d
@@ -148,14 +147,13 @@ transform_data <- function(stockdata, returns){
   
   stock_data <- cbind(x, stockdata$RV[-1])
   ret_trans <- returns$transformed
+  
   return(list(stock_data, ret_trans))
 }
-initialise_parameters_QML <- function(){
+initialise_parameters_QML <- function(par_ini){
   
   sig_eps <- (pi^2)/2 # Given in assignment
   mean_u <- -1.27 # Given in assignment
-  
-  par_ini <- c(0.1082, 0.991, -0.207, 0.0)
   
   Beta <- 0
   
@@ -268,6 +266,7 @@ compute_att_ptt<- function(weights, theta){
   
   return(cbind(a_hat_t_t, p_hat_t_t, weights))
 }
+
 
 resampling<- function(df_att_ptt_weights){
   # testing placeholders

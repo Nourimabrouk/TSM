@@ -11,6 +11,8 @@ library(lubridate)
 library(scales)
 library(ggplot2)
 library(fable)
+library(tseries)
+library(moments)
 
 setwd(here())
 options(warn=-1)
@@ -25,7 +27,7 @@ returns <- data %>%
   relocate(index) %>% 
   as_tsibble(index = index) %>% 
   rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4) %>% 
-  mutate(demeaned = (x - mean(x))/100,
+  mutate(demeaned = (x - mean(x)),
          transformed = log(demeaned^2)) 
 
 stockdata <- stocks %>%   
@@ -39,8 +41,17 @@ transformed_df = transform_data(stockdata, returns)
 input_stocks = transformed_df[[1]]
 input_returns = transformed_df[[2]]
 
+# Descriptive stats
+descriptive_a <- descriptive_stats(returns$x)
+descriptive_a
+descriptive_b <- descriptive_stats(returns$transformed)
+descriptive_b
+descriptive_e <- descriptive_stats(stockdata$RV)
+descriptive_e 
+
 #c / e -> need to separate these?
-initial_parameters = initialise_parameters_QML()
+par_ini <- c(0.1082, 0.98, -0.2, 0.9)
+initial_parameters = initialise_parameters_QML(par_ini)
 
 state_space_parameters = initial_parameters[[1]]
 par_ini = initial_parameters[[2]]
@@ -54,6 +65,14 @@ outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns
 
 outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
 outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
+
+########
+# Klad d)
+########
+library(tseries)
+# Keer tien moet eigenlijk niet maar dan vallen ze redelijk samen 
+plot(ts(outputSmooth_returns$alpha*10) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-30,1))
+points(returns$transformed, col="black")
 
 #f
 # From tutorial 5:
