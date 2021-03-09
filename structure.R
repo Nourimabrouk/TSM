@@ -36,9 +36,5 @@
     # compute_normalised_weights
     # compute_att_ptt
     # resampling
-  
-# d
 
-# e
 
-# f
