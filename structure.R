@@ -13,21 +13,21 @@
     # resampling
 
 # a
-  # Transform data
-  # Present Descriptives
+  # Transform data X 
+  # Present Descriptives 
   # Plot Graphs
 # b
-  # Transform
+  # Transform X 
   # Present graph
-# c
-  # QML
-  # Kalman filter
+# c 
+  # Kalman filter X 
+  # report estimates 
 # d
-  # Kalman filter
-  # Kalman smoother
-  # Present Ht
+  # Kalman filter   X  
+  # Kalman smoother X
+  # Present Ht  
 # e
-  # Transform RV
+  # Transform RV X 
   # Include Beta & Estimate
 # f
   # Particle filter

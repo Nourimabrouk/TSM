@@ -239,7 +239,6 @@ compute_att_ptt<- function(weights, theta){
   return(cbind(a_hat_t_t, p_hat_t_t, weights))
 }
 
-
 resampling<- function(df_att_ptt_weights){
   # testing placeholders
   #   a_hat_t_t = 1:100
