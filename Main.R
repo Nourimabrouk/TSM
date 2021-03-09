@@ -2,7 +2,7 @@ rm(list=ls())
 # Imports ----------
 
 source("functions.R")
-source("Plotting.R")
+#source("Plotting.R")
 
 library(here)
 library(tidyverse)
@@ -11,6 +11,8 @@ library(lubridate)
 library(scales)
 library(ggplot2)
 library(fable)
+library(tseries)
+library(moments)
 
 setwd(here())
 options(warn=-1)
@@ -25,7 +27,7 @@ returns <- data %>%
   relocate(index) %>% 
   as_tsibble(index = index) %>% 
   rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4) %>% 
-  mutate(demeaned = (x - mean(x))/100,
+  mutate(demeaned = (x - mean(x)),
          transformed = log(demeaned^2)) 
 
 stockdata <- stocks %>%   
@@ -34,42 +36,45 @@ stockdata <- stocks %>%
   rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
   mutate(RV = log(RV)) %>% 
   as_tsibble()
+# ab
+transformed_df = transform_data(stockdata, returns)
+input_stocks = transformed_df[[1]]
+input_returns = transformed_df[[2]]
 
+# Descriptive stats
+descriptive_a <- descriptive_stats(returns$x)
+descriptive_a
+descriptive_b <- descriptive_stats(returns$transformed)
+descriptive_b
+descriptive_e <- descriptive_stats(stockdata$RV)
+descriptive_e 
 
-source("functions.R")
-par_ini <- c(0.1, 0.98, -0.201, 0.9)
-perform_QML_routine(returns, stockdata, par_ini)
+#c / e -> need to separate these?
+par_ini <- c(0.1082, 0.98, -0.2, 0.9)
+initial_parameters = initialise_parameters_QML(par_ini)
 
-# QML / cde?
-y <- diff(log(stonkdata$Close))
-x <- log((y - mean(y))^2)
+state_space_parameters = initial_parameters[[1]]
+par_ini = initial_parameters[[2]]
 
-rv <- stonkdata$RV[-1]
-stonks_data1 <- cbind(x, rv)
-  
-sig_eps <- (pi^2)/2
-mean_u <- -1.27
+QML_params_returns <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
+QML_params_stocks <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
 
+#d
+outputKalman_returns <- compute_kalmanfilter(input_returns, QML_params_returns, state_space_parameters)
+outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns, outputKalman_returns)
 
-Z <- 1
-H <- sig_eps
-T <- par_ini[2]
-R <- par_ini[1]
-Q <- 1
-Beta <- par_ini[4]
+outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
+outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
 
-c <- par_ini[3]
-d <- mean_u
+########
+# Klad d)
+########
+library(tseries)
+# Keer tien moet eigenlijk niet maar dan vallen ze redelijk samen 
+plot(ts(outputSmooth_returns$alpha*10) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-30,1))
+points(returns$transformed, col="black")
 
-state_space_parameters <- data.frame(Z, H, T, R, Q, Beta, c, d)
-ret_trans <- returns$transformed
-res <- optimize_parameters(ret_trans, par_ini, state_space_parameters, TRUE)
-res2 <- optimize_parameters(stonks_data1, par_ini, state_space_parameters)
-
-# e)
-
-
-
-
-
-
+#f
+n = 100; sigma_eta = .5; phi = .5
+sigma = 1; theta_t = 1; y_t = 1 # change
+#perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)
