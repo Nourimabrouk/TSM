@@ -34,6 +34,28 @@ stockdata <- stocks %>%
   rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
   mutate(RV = log(RV)) %>% 
   as_tsibble()
+# ab
+transformed_df = transform_data(stockdata, returns)
+input_stocks = transformed_df[[1]]
+input_returns = transformed_df[[2]]
 
-perform_QML_routine(returns, stockdata)
+#c / e -> need to separate these?
+initial_parameters = initialise_parameters_QML()
 
+state_space_parameters = initial_parameters[[1]]
+par_ini = initial_parameters[[2]]
+
+QML_params_returns <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
+QML_params_stocks <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
+
+#d
+outputKalman_returns <- compute_kalmanfilter(input_returns, QML_params_returns, state_space_parameters)
+outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns, outputKalman_returns)
+
+outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
+outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
+
+#f
+n = 100; sigma_eta = .5; phi = .5
+sigma = 1; theta_t = 1; y_t = 1 # change
+#perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)

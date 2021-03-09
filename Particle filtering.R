@@ -1,17 +1,17 @@
-perform_particlefilter_routine <- function(input){
+
+
+perform_particlefilter_routine <- function(n, sigma_eta, phi, sigma, theta_t, y_t){
   # Implementation from 14.5.3 DK
   # With bootstrap filter
-  # And ... resampling
+  # And pg284 resampling
 
-  n = 100
-  sigma_eta = .5
-  phi = .5
   
 for (t in 1:n) {
   values = draw_values(n, sigma_eta, phi) # Vector of length n : theta_0 as random sample from normal unconditional distribution of theta
   normalised_weights = compute_normalised_weights(sigma, theta_t, y_t)
   c(att, ptt) = compute_att_ptt(theta_t, normalised_weights)
-  a_t_i = resampling()
+  a_t = resampling(att)
+  return(a_t)
   } 
 }
 
@@ -20,7 +20,7 @@ draw_values <- function(n, sigma_eta, phi){
   theta_0 = rnorm(n, 0, var)
   return(theta_0)
 }
-compute__normalised_weights<- function(){
+compute_normalised_weights<- function(){
   weights = exp ( -log (2*pi*sigma^2 ) / 2  - theta_t / 2 - ( exp(- theta_t) * y_t^2)) / (2 * sigma ^ 2) # 322 DK (ii)   
   normalised_weights = weights / sum ( weights )
   return(normalised_weights)
