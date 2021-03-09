@@ -28,7 +28,7 @@ optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_ou
   if(print_output == TRUE){
   print_optimizer_output(theta_star, results)
   }
-  return(theta_hat)
+  return(theta_star)
   
 }
 
@@ -128,12 +128,12 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
     P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
 
     if(t < n-1){
-      h[t+1] <- c + T*h_t[t]
+      h[t+1] <- c + T*h_t[t]            
       P[t+1] <- T^2*P_t[t] + Q*(R^2)
     } 
   }
   
-  output_kalmanfilter <- data.frame(h, P, v, F, K)
+  output_kalmanfilter <- data.frame(h,h_t, P, v, F, K)
   
   return(output_kalmanfilter)
 }

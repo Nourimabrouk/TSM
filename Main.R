@@ -66,13 +66,21 @@ outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns
 outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
 outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
 
-########
-# Klad d)
-########
-library(tseries)
-# Keer tien moet eigenlijk niet maar dan vallen ze redelijk samen 
-plot(ts(outputSmooth_returns$alpha*10) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-30,1))
+source("functions.R")
+#plot 1 
+plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-20,5))
 points(returns$transformed, col="black")
+
+xi <- QML_params_returns[3]/(1-QML_params_returns[2])
+h_t <- outputKalman_returns$h_t
+
+#plot 2
+H_filtered <- h_t-xi
+plot(ts(H_filtered), col="red", plot.type="single", ylab="", main="H_t Filtered")
+
+#plot 3
+H_smoothed <- outputSmooth_returns$alpha-xi
+plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
 
 #f
 n = 100; sigma_eta = .5; phi = .5
