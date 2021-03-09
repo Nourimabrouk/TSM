@@ -7,7 +7,7 @@ descriptive_stats <- function(data){
   skew <- skewness(data)
   kurt <- kurtosis(data)
   
-  descriptive <- c(number_observations,mean,var,min,max,skew,kurt)
+  descriptive <- data.frame(number_observations,mean,var,min,max,skew,kurt)
   return(descriptive)
 }
   
@@ -252,6 +252,7 @@ compute_att_ptt<- function(weights, theta){
   
   return(cbind(a_hat_t_t, p_hat_t_t, weights))
 }
+
 
 resampling<- function(df_att_ptt_weights){
   # testing placeholders
