@@ -56,6 +56,7 @@ outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks,
 outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
 
 #f
-n = 100; sigma_eta = .5; phi = .5
-sigma = 1; theta_t = 1; y_t = 1 # change
+# From tutorial 5:
+n = 100; 
+omega = -0.088; phi = 0.991; sigma_eta = 0.084
 #perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)
