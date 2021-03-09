@@ -124,10 +124,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   
   return(output_kalmanfilter)
 }
-
-perform_QML_routine = function(returns, stockdata){
-  
-  # Create transformed data matrix
+transform_data <- function(stockdata, returns){
   y = diff(log(stockdata$Close))
   x <- log((y - mean(y))^2)
   rv <- stockdata$RV[-1]
@@ -135,7 +132,12 @@ perform_QML_routine = function(returns, stockdata){
   input_matrix_stocks <- cbind(x, rv)
   input_returns <- returns$transformed
   
-  # Initialise parameters
+  stock_data <- cbind(x, stockdata$RV[-1])
+  ret_trans <- returns$transformed
+  return(list(stock_data, ret_trans))
+}
+initialise_parameters_QML <- function(){
+  
   sig_eps <- (pi^2)/2 # Given in assignment
   mean_u <- -1.27 # Given in assignment
   
@@ -153,29 +155,11 @@ perform_QML_routine = function(returns, stockdata){
     d = mean_u,
     Beta = par_ini[4]
   )
-  res <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
-  res2 <- optimize_parameters(input_matrix_stocks, par_ini, state_space_parameters, TRUE)
-  
-  stock_data <- cbind(x, stockdata$RV[-1])
-  ret_trans <- returns$transformed
-  
-  params_returns <- optimize_parameters(input_returns, par_ini, state_space_parameters,TRUE)
-  outputKalman_returns <- compute_kalmanfilter(input_returns, params_returns, state_space_parameters)
-  outputSmooth_returns <- compute_smoothed_state(input_returns,params_returns, outputKalman)
-  
-  params_stocks <- optimize_parameters(input_matrix_stocks, par_ini, state_space_parameters,TRUE)
-  outputKalman_stocks <- compute_kalmanfilter(input_matrix_stocks[,1], params_returns, state_space_parameters)
-  outputSmooth_stocks <- compute_smoothed_state(input_matrix_stocks[,1],params_returns,outputKalman)
-  
+  return(list(state_space_parameters, par_ini))
 }
 
 compute_smoothed_state <- function(data, theta, kf){
-  "
-  Goal: Compute smoothed state through reverse loop 
-  Input: theta, kf (Output of KalmanfilterSV)
-  Output: DF nx6 - data.frame(alpha, N, r, V, alpha_lb, alpha_ub)
-  
-  "
+
   y <- as.matrix(data)
   h <- kf$h
   P <- kf$P
@@ -222,4 +206,53 @@ compute_smoothed_state <- function(data, theta, kf){
   Smoothedstate <- data.frame(alpha, r, N, V)
   
   return (Smoothedstate)
+}
+perform_particlefilter_routine <- function(n, sigma_eta, phi, sigma, theta_t, y_t){
+  # Implementation from 14.5.3 DK
+  # With bootstrap filter
+  # And pg284 resampling
+  
+  for (t in 1:n) {
+    values = draw_values(n, sigma_eta, phi) # Vector of length n : theta_0 as random sample from normal unconditional distribution of theta
+    normalised_weights = compute_normalised_weights(sigma, theta_t, y_t)
+    c(att, ptt) = compute_att_ptt(theta_t, normalised_weights)
+    a_t = resampling(att)
+  } 
+  return(a_t)
+}
+
+draw_values <- function(n, sigma_eta, phi){
+  var = sigma_eta^2 / (1 - phi^2)
+  theta_0 = rnorm(n, 0, var)
+  return(theta_0)
+}
+compute_normalised_weights<- function(){
+  weights = exp ( -log (2*pi*sigma^2 ) / 2  - theta_t / 2 - ( exp(- theta_t) * y_t^2)) / (2 * sigma ^ 2) # 322 DK (ii)   
+  normalised_weights = weights / sum ( weights )
+  return(normalised_weights)
+}
+
+compute_att_ptt<- function(weights, theta){
+  a_hat_t_t = sum ( weights * theta_t_i)
+  p_hat_t_t = sum ( weights * theta_t_i ^ 2 - a_hat_t_t ^ 2 )
+  
+  return(cbind(a_hat_t_t, p_hat_t_t, weights))
+}
+
+
+resampling<- function(df_att_ptt_weights){
+  # testing placeholders
+  #   a_hat_t_t = 1:100
+  #   p_hat_t_t = 1:100
+  #   weights = 100:1 / sum(100:1)
+  #   df_att_ptt_weights <- cbind(a_hat_t_t, p_hat_t_t, weights)
+  
+  # Resampling from pg 284
+  
+  att = df_att_ptt_weights[,1]
+  weights = df_att_ptt_weights[,3]
+  weights = abs(rnorm(100,1,.5))
+  resampled = sample_n(input, 100, replace = TRUE, weight = input$weights)
+  
+  return(resampled)
 }
