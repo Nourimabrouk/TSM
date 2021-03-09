@@ -212,23 +212,39 @@ perform_particlefilter_routine <- function(n, sigma_eta, phi, sigma, theta_t, y_
   # With bootstrap filter
   # And pg284 resampling
   
+  #Sigma eta, phi from previous optimizations
+  theta_t = initialise_theta(n, sigma_eta, phi) #(theta_0)
   for (t in 1:n) {
+    # Initialise values <- current, draw_values
+    # Generate vector (step i of recursion)
+    rnorm(n, phi*theta, sigma_eta^2)
     values = draw_values(n, sigma_eta, phi) # Vector of length n : theta_0 as random sample from normal unconditional distribution of theta
-    normalised_weights = compute_normalised_weights(sigma, theta_t, y_t)
-    c(att, ptt) = compute_att_ptt(theta_t, normalised_weights)
+    normalised_weights = compute_normalised_weights(sigma, theta, y_t)
+    c(att, ptt) = compute_att_ptt(theta, normalised_weights)
     a_t = resampling(att)
+    alpha_t = resampling(att)
   } 
   return(a_t)
 }
 
-draw_values <- function(n, sigma_eta, phi){
+initialise_theta <- function(n, sigma_eta, phi){
   var = sigma_eta^2 / (1 - phi^2)
   theta_0 = rnorm(n, 0, var)
   return(theta_0)
 }
-compute_normalised_weights<- function(){
+draw_values <- function(theta, sigma_eta, phi){
+  n = length(theta)
+  var = sigma_eta^2 / (1 - phi^2)
+  theta_0 = rnorm(n, 0, var)
+  return(theta_0)
+}
+
+compute_normalised_weights<- function(theta_t, y_t, x_i){
+  
+  sigma = sqrt(exp(x_i)) # answer to lucas discussion board
   weights = exp ( -log (2*pi*sigma^2 ) / 2  - theta_t / 2 - ( exp(- theta_t) * y_t^2)) / (2 * sigma ^ 2) # 322 DK (ii)   
   normalised_weights = weights / sum ( weights )
+  
   return(normalised_weights)
 }
 
