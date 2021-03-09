@@ -1,3 +1,17 @@
+descriptive_stats <- function(data){
+  number_observations <- length(data)
+  mean <- mean(data)
+  var <- var(data)
+  min <- min(data)
+  max <- max(data)
+  skew <- skewness(data)
+  kurt <- kurtosis(data)
+  
+  descriptive <- c(number_observations,mean,var,min,max,skew,kurt)
+  return(descriptive)
+}
+  
+
 optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_output){
   
   results <- optim(par=phi_ini, fn=function(par) - compute_loglikelihood(df_data, par, state_space_matrices), method="BFGS")
