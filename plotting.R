@@ -56,8 +56,6 @@ plot_stock_input = readRDS(file = "plot_stock_input.rds")
 colnames(plot_returns_input)
 colnames(plot_stock_input)
 
-
-
 # 
 plot_one <-ggplot(plot_stock_input, aes(x = index))+
 theme_minimal()+

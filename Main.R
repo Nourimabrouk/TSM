@@ -80,8 +80,6 @@ outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks, QML_params_stocks
 plot(ts(outputKalman_stocks_rv$P))
 plot(ts(outputKalman_stocks$P))
 
-source("functions.R")
-
 #plot 1 
 plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
 points(returns$transformed, col="black")
@@ -116,7 +114,6 @@ plot_stock_input <- stockdata %>%
     H_filtered_stock = H_filtered_stock,
     H_filtered_stock_rv = H_filtered_stock_rv,
     particle_filtered_stock = particle_filtered_stock)
-
 
 saveRDS(plot_returns_input, file = "plot_returns_input.rds")
 saveRDS(plot_stock_input, file = "plot_stock_input.rds")
