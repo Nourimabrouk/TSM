@@ -87,3 +87,4 @@ plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed"
 n = 100; 
 omega = -0.088; phi = 0.991; sigma_eta = 0.084
 #perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)
+
