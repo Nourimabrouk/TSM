@@ -143,7 +143,7 @@ class KalmanFilter:
 
         # H tilde
         H = np.zeros((N,n))
-
+        H = np.zeros((10000,100))
         H[:,0] = np.random.normal(loc=0,scale = np.sqrt(sig2_eta/(1-phi**2)), size = N)
 
         for t in range(1,n):
