@@ -47,8 +47,11 @@ descriptive_a <- descriptive_stats(returns$x)
 descriptive_a
 descriptive_b <- descriptive_stats(returns$transformed)
 descriptive_b
-descriptive_e <- descriptive_stats(stockdata$RV)
-descriptive_e 
+
+descriptive_e1 <- descriptive_stats(input_stocks[,1])
+descriptive_e1 
+descriptive_e2 <- descriptive_stats(input_stocks[,-1])
+descriptive_e2 
 
 #c / e -> need to separate these?
 par_ini <- c(0.1082, 0.98, -0.2, 0.9)
@@ -57,31 +60,54 @@ initial_parameters <- initialise_parameters_QML(par_ini)
 state_space_parameters <- initial_parameters[[1]]
 par_ini <- initial_parameters[[2]]
 
-QML_params_returns <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
-QML_params_stocks <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
+QML_params_returns <- optimize_parameters(input_returns, par_ini[-4], state_space_parameters, TRUE) # (Print_output = TRUE)
+
+QML_params_stocks <- optimize_parameters(input_stocks[,1], par_ini[-4], state_space_parameters, TRUE)
+QML_params_stocks_rv <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
 
 #d
 outputKalman_returns <- compute_kalmanfilter(input_returns, QML_params_returns, state_space_parameters)
 outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns, outputKalman_returns)
 
 outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
-outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
+outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1], QML_params_stocks, outputKalman_stocks)
+
+outputKalman_stocks_rv <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks_rv, state_space_parameters)
+outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks[,1], QML_params_stocks_rv, outputKalman_stocks_rv)
+
+
 
 source("functions.R")
 #plot 1 
-plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-20,5))
+plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
 points(returns$transformed, col="black")
 
-xi <- QML_params_returns[3]/(1 - QML_params_returns[2])
+xi_sv <- QML_params_returns[3]/(1 - QML_params_returns[2])
+xi_stocks <- QML_params_stocks[3]/(1 - QML_params_stocks[2])
+xi_stocks_rv <- QML_params_stocks_rv[3]/(1 - QML_params_stocks_rv[2])
 
 #plot 2
 h_t <- outputKalman_returns$h_t
-H_filtered <- h_t - xi
+H_filtered <- h_t - xi_sv
 plot(ts(H_filtered), col="red", plot.type="single", ylab="", main="H_t Filtered")
 
 #plot 3
+H_smoothed <- outputSmooth_returns$alpha - xi_sv
+plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+
+#plot 2e
+
+h_t <- outputKalman_stocks$h_t
+H_filtered <- h_t - xi
+plot(ts(H_filtered), col="red", plot.type="single", ylab="", main="H_t Filtered")
+
+
+
+#plot 3e
 H_smoothed <- outputSmooth_returns$alpha - xi
 plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+
+
 
 #f
 # From tutorial 5:

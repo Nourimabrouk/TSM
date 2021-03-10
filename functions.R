@@ -11,31 +11,53 @@ descriptive_stats <- function(data){
   return(descriptive)
 }
   
+get_mle_standard_errors <- function(hessian){
+
+  standard_errors <- sqrt(abs(diag(solve(-hessian))))
+
+  return(standard_errors)
+  
+}
 
 optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_output){
   
-  results <- optim(par=phi_ini, fn=function(par) - compute_loglikelihood(df_data, par, state_space_matrices), method="BFGS")
+  results <- optim(par=phi_ini, fn=function(par) - compute_loglikelihood(df_data, par, state_space_matrices), method="BFGS",  hessian = TRUE)
   
   theta_hat <- results$par
+  hess <- results$hessian
+  standard_errors <- get_mle_standard_errors(hess)
 
   sigma_star <- exp(theta_hat[1])
   phi_star <- exp(theta_hat[2])/(1 + exp(theta_hat[2]))
   omega_star <- theta_hat[3]
-  beta_star <- theta_hat[4]
   
-  theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
+  if(length(theta_hat) == 4){
+    beta_star <- theta_hat[4]
+    theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
+    
+  } else{
+    
+    theta_star <- c(sigma_star, phi_star, omega_star)
+    
+  }
   
   if(print_output == TRUE){
-  print_optimizer_output(theta_star, results)
+  print_optimizer_output(theta_star, standard_errors, results)
   }
   return(theta_star)
   
 }
 
-print_optimizer_output <- function(theta_star, results){
+
+
+
+print_optimizer_output <- function(theta_hat, standard_errors, results){
  
-   print("The parameter estimates are:")
-  print(round(theta_star, 4))
+  print("The parameter estimates are:")
+  print(round(theta_hat, 4))
+  
+  print("std. errors")
+  print(round(standard_errors, 4))
   
   print("The log-likelihood value is:")
   print(results$value)
@@ -60,9 +82,14 @@ compute_loglikelihood<- function(data, theta, state_space_matrices){
   sigma_star <- exp(theta[1])
   phi_star <- exp(theta[2])/(1 + exp(theta[2]))
   omega_star <- theta[3]
-  beta_star <- theta[4]
   
-  theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
+  if(length(theta) == 4){
+    beta_star <- theta[4]
+    theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
+  } else{
+    theta_star <- c(sigma_star, phi_star, omega_star)
+  }
+    
   
   kf_state <- compute_kalmanfilter(data, theta_star, state_space_matrices)
   
@@ -147,7 +174,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
 }
 transform_data <- function(stockdata, returns){
   
-  y = diff(log(stockdata$Close))
+  y <- diff(log(stockdata$Close))
   x <- log((y - mean(y))^2)
   rv <- stockdata$RV[-1]
   
@@ -197,7 +224,7 @@ compute_smoothed_state <- function(data, theta, kf){
   N <- rep(0, n)     # smoothed state error variance
   r <- rep(0, n)
   V <- rep(0, n)     # smoothed state variance
-  L <- phi-K*Z
+  L <- phi - K*Z
   
   N[n] <- 0
   r[n] <- 0
