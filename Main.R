@@ -55,6 +55,7 @@ descriptive_e2
 
 #c / e -> need to separate these?
 par_ini <- c(0.1082, 0.98, -0.2, 0.9)
+
 initial_parameters <- initialise_parameters_QML(par_ini)
 
 state_space_parameters <- initial_parameters[[1]]
@@ -72,8 +73,12 @@ outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns
 outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
 outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1], QML_params_stocks, outputKalman_stocks)
 
-outputKalman_stocks_rv <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks_rv, state_space_parameters)
-outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks[,1], QML_params_stocks_rv, outputKalman_stocks_rv)
+outputKalman_stocks_rv <- compute_kalmanfilter(input_stocks, QML_params_stocks_rv, state_space_parameters)
+outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks, QML_params_stocks_rv, outputKalman_stocks_rv)
+
+
+plot(ts(outputKalman_stocks_rv$P))
+plot(ts(outputKalman_stocks$P))
 
 
 
@@ -97,17 +102,25 @@ plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed"
 
 #plot 2e
 
-h_t <- outputKalman_stocks$h_t
-H_filtered <- h_t - xi
-plot(ts(H_filtered), col="red", plot.type="single", ylab="", main="H_t Filtered")
+h_t_stock <- outputKalman_stocks$h_t
+h_t_stock_rv <- outputKalman_stocks_rv$h_t
 
+H_filtered_stock <- h_t_stock - xi_stocks
+H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
 
+plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
+lines(ts(H_filtered_stock_rv))
 
 #plot 3e
-H_smoothed <- outputSmooth_returns$alpha - xi
+H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
+H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
+
 plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+plot(ts(H_smoothed_rv), col="red", plot.type="single", ylab="", main="H_t Smoothed")
 
 
+plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
+points(returns$transformed, col="black")
 
 #f
 # From tutorial 5:
@@ -126,8 +139,8 @@ stockdata
 
 plot_returns_input <- returns %>% mutate(
   alpha = outputSmooth_returns$alpha,
-  H_filtered = h_t - xi,
-  H_smoothed = outputSmooth_returns$alpha - xi)
+  H_filtered = h_t - xi_sv,
+  H_smoothed = outputSmooth_returns$alpha - xi_sv)
 saveRDS(plot_returns_input, file = "plot_returns_input.rds")
   
 # e) stockdata

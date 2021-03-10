@@ -34,11 +34,8 @@ optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_ou
   if(length(theta_hat) == 4){
     beta_star <- theta_hat[4]
     theta_star <- c(sigma_star, phi_star, omega_star, beta_star)
-    
   } else{
-    
     theta_star <- c(sigma_star, phi_star, omega_star)
-    
   }
   
   if(print_output == TRUE){
@@ -47,9 +44,6 @@ optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_ou
   return(theta_star)
   
 }
-
-
-
 
 print_optimizer_output <- function(theta_hat, standard_errors, results){
  
@@ -90,7 +84,6 @@ compute_loglikelihood<- function(data, theta, state_space_matrices){
     theta_star <- c(sigma_star, phi_star, omega_star)
   }
     
-  
   kf_state <- compute_kalmanfilter(data, theta_star, state_space_matrices)
   
   v <- kf_state$v
@@ -101,7 +94,6 @@ compute_loglikelihood<- function(data, theta, state_space_matrices){
   loglikelihood <- (sum(log_density))
   
   return(loglikelihood)
-  
 }
 
 compute_kalmanfilter <- function(data, theta, state_space_matrices){
@@ -111,7 +103,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   m <- dim(X)[2]
 
   y <- X[,1]
-
+  
   if (m > 1){
     x <- X[,-1]
     Beta <- theta[4]
@@ -127,7 +119,6 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   T <- theta[2]
   Z <- state_space_matrices$Z
 
-  
   c <- theta[3]
   d <- state_space_matrices$d
   
@@ -142,7 +133,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   P_t <- rep(0, n)
 
   # Define initial values for unconditional mean and variance resp.
-  h[1] <- c/(1 - T) 
+  h[1] <- c/(1 - T)
   P[1] <- Q/(1 - T^2) 
   
   for (t in 1:n) {
@@ -155,7 +146,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
     P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
     
     if(t < n-1){
-      h[t+1] <- c + T*h_t[t]            
+      h[t+1] <- c + T*h_t[t]
       P[t+1] <- T^2*P_t[t] + Q*(R^2)
     }  
   
@@ -168,10 +159,11 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
     
   }
   
-  output_kalmanfilter <- data.frame(h,h_t, P, v, F, K)
+  output_kalmanfilter <- data.frame(h, h_t, P, v, F, K)
   
   return(output_kalmanfilter)
 }
+
 transform_data <- function(stockdata, returns){
   
   y <- diff(log(stockdata$Close))
@@ -186,6 +178,7 @@ transform_data <- function(stockdata, returns){
   
   return(list(stock_data, ret_trans))
 }
+
 initialise_parameters_QML <- function(par_ini){
   
   sig_eps <- (pi^2)/2 # Given in assignment
