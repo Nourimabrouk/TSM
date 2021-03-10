@@ -76,13 +76,11 @@ outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1], QML_params_stock
 outputKalman_stocks_rv <- compute_kalmanfilter(input_stocks, QML_params_stocks_rv, state_space_parameters)
 outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks, QML_params_stocks_rv, outputKalman_stocks_rv)
 
-
 plot(ts(outputKalman_stocks_rv$P))
 plot(ts(outputKalman_stocks$P))
 
-
-
 source("functions.R")
+
 #plot 1 
 plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
 points(returns$transformed, col="black")
@@ -101,6 +99,11 @@ H_smoothed <- outputSmooth_returns$alpha - xi_sv
 plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
 
 #plot 2e
+plot(ts(outputSmooth_stocks$alpha), col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(input_stocks[,1]), max(input_stocks[,1])))
+lines(ts(outputSmooth_stocks_rv$alpha))
+points(input_stocks[,1], col="black")
+
+
 
 h_t_stock <- outputKalman_stocks$h_t
 h_t_stock_rv <- outputKalman_stocks_rv$h_t
