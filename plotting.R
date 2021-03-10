@@ -49,13 +49,28 @@ plot_alpha <- ggplot(data = plot_returns_input, aes(x = index)) +
 plot_d_combined <-ggplot(plot_returns_input, aes(index, transformed))+
   theme_minimal()+
   geom_line(aes(y=H_smoothed))+
+<<<<<<< Updated upstream
   geom_line(aes(y=H_filtered), col = "red") + 
   ggtitle("Filtered Ht and Smoothed Ht")+xlab("Index")+ylab("Smoothed")
 
 
+=======
+  ggtitle("Smoothed")+xlab("Index")+ylab("Smoothed")
+
+plot_d_combined <-ggplot(plot_returns_input, aes(index, transformed))+
+  theme_minimal()+
+  geom_line(aes(y=H_smoothed))+
+  geom_line(aes(y=H_filtered), col = "red") + 
+  ggtitle("Smoothed")+xlab("Index")+ylab("Smoothed")
+  
+plot_d_combined
+>>>>>>> Stashed changes
 plot_demeaned
 plot_transformed
 plot_alpha
 plot_filtered
 plot_smoothed
+<<<<<<< Updated upstream
 plot_d_combined
+=======
+>>>>>>> Stashed changes
