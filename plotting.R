@@ -34,26 +34,28 @@ plot_alpha <- ggplot(data = plot_returns_input, aes(x = index)) +
   geom_point(aes(y = transformed))+
   scale_x_continuous(breaks = seq(0,900,100)) + 
   ylim(-20,-5)+
-  ggtitle("Alpha")+xlab("Index")+ylab("Alpha")
+  ggtitle("Smoothed value of h_t")+xlab("Index")+ylab("h_t")
 
-plot_filtered <- ggplot(plot_returns_input, aes(index, transformed))+
-  theme_minimal()+
-  geom_line(aes(y = H_filtered))+ 
-  ggtitle("Filtered")+xlab("Index")+ylab("Filtered")
+# plot_filtered <- ggplot(plot_returns_input, aes(index, transformed))+
+#   theme_minimal()+
+#   geom_line(aes(y = H_filtered))+ 
+#   ggtitle("Filtered Ht")+xlab("Index")+ylab("Filtered")
+# 
+# plot_smoothed <-ggplot(plot_returns_input, aes(index, transformed))+
+#   theme_minimal()+
+#   geom_line(aes(y=H_smoothed))+ 
+#   ggtitle("Smoothed Ht")+xlab("Index")+ylab("Smoothed")
 
-plot_smoothed <-ggplot(plot_returns_input, aes(index, transformed))+
+plot_d_combined <-ggplot(plot_returns_input, aes(index, transformed))+
   theme_minimal()+
-  geom_line(aes(y=H_smoothed))+ 
-  ggtitle("Smoothed")+xlab("Index")+ylab("Smoothed")
+  geom_line(aes(y=H_smoothed))+
+  geom_line(aes(y=H_filtered), col = "red") + 
+  ggtitle("Filtered Ht and Smoothed Ht")+xlab("Index")+ylab("Smoothed")
 
-plot_transformed <- ggplot(plot_returns_input, aes(index, transformed))+
-  theme_minimal()+
-  geom_line()+ 
-  ggtitle("Transformed")+xlab("Index")+ylab("Transformed")
 
 plot_demeaned
 plot_transformed
 plot_alpha
 plot_filtered
 plot_smoothed
-plot_transformed
+plot_d_combined
