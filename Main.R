@@ -103,8 +103,6 @@ plot(ts(outputSmooth_stocks$alpha), col="red", plot.type="single", ylab="", main
 lines(ts(outputSmooth_stocks_rv$alpha))
 points(input_stocks[,1], col="black")
 
-
-
 h_t_stock <- outputKalman_stocks$h_t
 h_t_stock_rv <- outputKalman_stocks_rv$h_t
 
@@ -119,11 +117,9 @@ H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
 H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
 
 plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
-plot(ts(H_smoothed_rv), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+lines(ts(H_smoothed_rv))
 
 
-plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
-points(returns$transformed, col="black")
 
 #f
 # From tutorial 5:
