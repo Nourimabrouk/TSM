@@ -141,8 +141,18 @@ plot_returns_input <- returns %>% mutate(
   alpha = outputSmooth_returns$alpha,
   H_filtered = h_t - xi_sv,
   H_smoothed = outputSmooth_returns$alpha - xi_sv)
-saveRDS(plot_returns_input, file = "plot_returns_input.rds")
+plot_stock_input <- stockdata %>% 
+  slice(-1) %>% 
+  mutate(
+    h_t_stock = h_t_stock,
+    h_t_stock_rv = h_t_stock_rv,
+    H_filtered_stock = H_filtered_stock,
+    H_filtered_stock_rv = H_filtered_stock_rv
+  )
   
+saveRDS(plot_returns_input, file = "plot_returns_input.rds")
+saveRDS(plot_stock_input, file = "plot_stock_input.rds")
+
 # e) stockdata
 # f) ? 
 

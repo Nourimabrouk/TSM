@@ -5,7 +5,7 @@ library(ggplot2)
 library(ggthemes)
 
 plot_returns_input = readRDS(file = "plot_returns_input.rds")
-plot_returns_input
+plot_stock_input = readRDS(file = "plot_stock_input.rds")
 
 # #Quickplots
 # autoplot(plot_returns_input, demeaned)
