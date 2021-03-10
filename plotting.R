@@ -78,6 +78,10 @@ plot_three <- ggplot(plot_stock_input, aes(x = index))+
     geom_line(aes(y=H_smoothed_rv), col = "red") +
     ggtitle("Plot 3 zeus")+xlab("Index")+ylab("")
 
+plot_particle <- ggplot(plot_stock_input, aes(x = index))+
+  theme_minimal()+
+  geom_line(aes(y=H_filtered_stock))+
+  geom_line(aes(y=particle_filtered_stock), col = "red") +
+  ggtitle("Particle filter plot")+xlab("Index")+ylab("Filtered / Particle filtered (red)")
 
-
-
+plot_particle

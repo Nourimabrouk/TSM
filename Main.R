@@ -95,11 +95,9 @@ H_filtered_stock <- h_t_stock - xi_stocks
 H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
 H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
 H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
+particle_filtered_stock <- particle_filter(stockdata)
+
 #f
-# From tutorial 5:
-n = 100; 
-omega = -0.088; phi = 0.991; sigma_eta = 0.084
-#perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)
 
 plot_returns_input <- returns %>% mutate(
   alpha = outputSmooth_returns$alpha,
@@ -116,7 +114,8 @@ plot_stock_input <- stockdata %>%
     h_t_stock = h_t_stock,
     h_t_stock_rv = h_t_stock_rv,
     H_filtered_stock = H_filtered_stock,
-    H_filtered_stock_rv = H_filtered_stock_rv)
+    H_filtered_stock_rv = H_filtered_stock_rv,
+    particle_filtered_stock = particle_filtered_stock)
 
 
 saveRDS(plot_returns_input, file = "plot_returns_input.rds")
