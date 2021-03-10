@@ -74,3 +74,26 @@ plot_smoothed
 plot_d_combined
 =======
 >>>>>>> Stashed changes
+
+#plot 2e
+
+h_t_stock <- outputKalman_stocks$h_t
+h_t_stock_rv <- outputKalman_stocks_rv$h_t
+
+H_filtered_stock <- h_t_stock - xi_stocks
+H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
+
+plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
+lines(ts(H_filtered_stock_rv))
+
+#plot 3e
+H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
+H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
+
+plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+plot(ts(H_smoothed_rv), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+
+
+plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
+points(returns$transformed, col="black")
+
