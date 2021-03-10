@@ -10,6 +10,7 @@ library(tsibble)
 library(lubridate)
 library(scales)
 library(ggplot2)
+library(ggthemes)
 library(fable)
 library(tseries)
 library(moments)
@@ -87,4 +88,22 @@ plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed"
 n = 100; 
 omega = -0.088; phi = 0.991; sigma_eta = 0.084
 #perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)
+
+#plots are for:
+# a) Original
+returns
+stockdata
+#   transformed
+# b) x_t (transformed)
+# d) h_filtered
+#    h_smoothed
+
+plot_returns_input <- returns %>% mutate(
+  alpha = outputSmooth_returns$alpha,
+  H_filtered = h_t - xi,
+  H_smoothed = outputSmooth_returns$alpha - xi)
+saveRDS(plot_returns_input, file = "plot_returns_input.rds")
+  
+# e) stockdata
+# f) ? 
 
