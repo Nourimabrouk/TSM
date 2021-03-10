@@ -28,7 +28,7 @@ optimize_parameters <- function(df_data, phi_ini, state_space_matrices, print_ou
   if(print_output == TRUE){
   print_optimizer_output(theta_star, results)
   }
-  return(theta_hat)
+  return(theta_star)
   
 }
 
@@ -126,18 +126,27 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
 
     h_t[t] <- h[t] + P[t]*Z*v[t]/F[t]
     P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
-
+    
     if(t < n-1){
-      h[t+1] <- c + T*h_t[t]
+      h[t+1] <- c + T*h_t[t]            
       P[t+1] <- T^2*P_t[t] + Q*(R^2)
-    } 
+    }  
+  
+  # Final index of arrays  
+  h[n] <- c + T*h_t[n-1]            
+  P[n] <- T^2*P_t[n-1] + Q*(R^2)
+
+  h_t[n] <- h[n] + P[n]*Z*v[n]/F[n]
+  P_t[n] <- P[n] - (P[n]^2)*(Z^2)/F[n]
+    
   }
   
-  output_kalmanfilter <- data.frame(h, P, v, F, K)
+  output_kalmanfilter <- data.frame(h,h_t, P, v, F, K)
   
   return(output_kalmanfilter)
 }
 transform_data <- function(stockdata, returns){
+  
   y = diff(log(stockdata$Close))
   x <- log((y - mean(y))^2)
   rv <- stockdata$RV[-1]
@@ -167,6 +176,7 @@ initialise_parameters_QML <- function(par_ini){
     d = mean_u,
     Beta = par_ini[4]
   )
+  
   return(list(state_space_parameters, par_ini))
 }
 

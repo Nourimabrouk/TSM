@@ -27,7 +27,7 @@ returns <- data %>%
   relocate(index) %>% 
   as_tsibble(index = index) %>% 
   rename(x = X...Pound.Dollar.daily.exchange.rates..sections.9.6.and.14.4) %>% 
-  mutate(demeaned = (x - mean(x)),
+  mutate(demeaned = (x - mean(x))/100,
          transformed = log(demeaned^2)) 
 
 stockdata <- stocks %>%   
@@ -51,10 +51,10 @@ descriptive_e
 
 #c / e -> need to separate these?
 par_ini <- c(0.1082, 0.98, -0.2, 0.9)
-initial_parameters = initialise_parameters_QML(par_ini)
+initial_parameters <- initialise_parameters_QML(par_ini)
 
-state_space_parameters = initial_parameters[[1]]
-par_ini = initial_parameters[[2]]
+state_space_parameters <- initial_parameters[[1]]
+par_ini <- initial_parameters[[2]]
 
 QML_params_returns <- optimize_parameters(input_returns, par_ini, state_space_parameters, TRUE) # (Print_output = TRUE)
 QML_params_stocks <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
@@ -66,13 +66,21 @@ outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns
 outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
 outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1],QML_params_stocks, outputKalman_stocks)
 
-########
-# Klad d)
-########
-library(tseries)
-# Keer tien moet eigenlijk niet maar dan vallen ze redelijk samen 
-plot(ts(outputSmooth_returns$alpha*10) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-30,1))
+source("functions.R")
+#plot 1 
+plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(-20,5))
 points(returns$transformed, col="black")
+
+xi <- QML_params_returns[3]/(1 - QML_params_returns[2])
+
+#plot 2
+h_t <- outputKalman_returns$h_t
+H_filtered <- h_t - xi
+plot(ts(H_filtered), col="red", plot.type="single", ylab="", main="H_t Filtered")
+
+#plot 3
+H_smoothed <- outputSmooth_returns$alpha - xi
+plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
 
 #f
 # From tutorial 5:
