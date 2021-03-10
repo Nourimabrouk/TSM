@@ -38,6 +38,7 @@ stockdata <- stocks %>%
   mutate(RV = log(RV)) %>% 
   as_tsibble()
 # ab
+
 transformed_df = transform_data(stockdata, returns)
 input_stocks = transformed_df[[1]]
 input_returns = transformed_df[[2]]
@@ -88,67 +89,36 @@ points(returns$transformed, col="black")
 xi_sv <- QML_params_returns[3]/(1 - QML_params_returns[2])
 xi_stocks <- QML_params_stocks[3]/(1 - QML_params_stocks[2])
 xi_stocks_rv <- QML_params_stocks_rv[3]/(1 - QML_params_stocks_rv[2])
-
-#plot 2
-h_t <- outputKalman_returns$h_t
-H_filtered <- h_t - xi_sv
-plot(ts(H_filtered), col="red", plot.type="single", ylab="", main="H_t Filtered")
-
-#plot 3
-H_smoothed <- outputSmooth_returns$alpha - xi_sv
-plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
-
-#plot 2e
-plot(ts(outputSmooth_stocks$alpha), col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(input_stocks[,1]), max(input_stocks[,1])))
-lines(ts(outputSmooth_stocks_rv$alpha))
-points(input_stocks[,1], col="black")
-
 h_t_stock <- outputKalman_stocks$h_t
 h_t_stock_rv <- outputKalman_stocks_rv$h_t
-
 H_filtered_stock <- h_t_stock - xi_stocks
 H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
-
-plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
-lines(ts(H_filtered_stock_rv))
-
-#plot 3e
 H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
 H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
-
-plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
-lines(ts(H_smoothed_rv))
-
-
-
 #f
 # From tutorial 5:
 n = 100; 
 omega = -0.088; phi = 0.991; sigma_eta = 0.084
 #perform_particlefilter_routine(n, sigma_eta, phi, sigma, theta_t, y_t)
 
-#plots are for:
-# a) Original
-returns
-stockdata
-#   transformed
-# b) x_t (transformed)
-# d) h_filtered
-#    h_smoothed
-
 plot_returns_input <- returns %>% mutate(
   alpha = outputSmooth_returns$alpha,
   H_filtered = h_t - xi_sv,
   H_smoothed = outputSmooth_returns$alpha - xi_sv)
+
 plot_stock_input <- stockdata %>% 
   slice(-1) %>% 
   mutate(
+    index = 1:1286,
+    x = input_stocks[,1],
+    alpha = outputSmooth_stocks$alpha,
+    alpha_rv = outputSmooth_stocks_rv$alpha,
     h_t_stock = h_t_stock,
     h_t_stock_rv = h_t_stock_rv,
     H_filtered_stock = H_filtered_stock,
-    H_filtered_stock_rv = H_filtered_stock_rv
-  )
-  
+    H_filtered_stock_rv = H_filtered_stock_rv)
+
+
 saveRDS(plot_returns_input, file = "plot_returns_input.rds")
 saveRDS(plot_stock_input, file = "plot_stock_input.rds")
 
