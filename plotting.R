@@ -49,13 +49,51 @@ plot_alpha <- ggplot(data = plot_returns_input, aes(x = index)) +
 plot_d_combined <-ggplot(plot_returns_input, aes(index, transformed))+
   theme_minimal()+
   geom_line(aes(y=H_smoothed))+
+<<<<<<< Updated upstream
   geom_line(aes(y=H_filtered), col = "red") + 
   ggtitle("Filtered Ht and Smoothed Ht")+xlab("Index")+ylab("Smoothed")
 
 
+=======
+  ggtitle("Smoothed")+xlab("Index")+ylab("Smoothed")
+
+plot_d_combined <-ggplot(plot_returns_input, aes(index, transformed))+
+  theme_minimal()+
+  geom_line(aes(y=H_smoothed))+
+  geom_line(aes(y=H_filtered), col = "red") + 
+  ggtitle("Smoothed")+xlab("Index")+ylab("Smoothed")
+  
+plot_d_combined
+>>>>>>> Stashed changes
 plot_demeaned
 plot_transformed
 plot_alpha
 plot_filtered
 plot_smoothed
+<<<<<<< Updated upstream
 plot_d_combined
+=======
+>>>>>>> Stashed changes
+
+#plot 2e
+
+h_t_stock <- outputKalman_stocks$h_t
+h_t_stock_rv <- outputKalman_stocks_rv$h_t
+
+H_filtered_stock <- h_t_stock - xi_stocks
+H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
+
+plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
+lines(ts(H_filtered_stock_rv))
+
+#plot 3e
+H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
+H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
+
+plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+plot(ts(H_smoothed_rv), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+
+
+plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
+points(returns$transformed, col="black")
+
