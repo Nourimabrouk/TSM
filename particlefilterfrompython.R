@@ -4,7 +4,7 @@ particle_filter <- function(stockdata){
   y <- diff(log(stockdata$Close))
   x <- log((y - mean(y))^2)
   
-  N = 10000;  n = length(y); 
+  N = 10;  n = length(y); 
   omega = -0.088; phi = 0.991; sigma_eta = 0.084
   
   a = rep(0, 100)
@@ -26,5 +26,8 @@ particle_filter <- function(stockdata){
   return(a)
 }
 
-a <- particle_filter(stockdata)
-a
+particle_filtered_stock <- particle_filter(stockdata)
+H_filtered_stock
+
+length(a)
+

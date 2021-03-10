@@ -249,68 +249,32 @@ compute_smoothed_state <- function(data, theta, kf){
   
   return (Smoothedstate)
 }
-perform_particlefilter_routine <- function(n, sigma_eta, phi, sigma, theta_t, y_t){
-  # Implementation from 14.5.3 DK
-  # With bootstrap filter
-  # And pg284 resampling
-  
-  #Sigma eta, phi from previous optimizations
-  theta_t = initialise_theta(n, sigma_eta, phi) #(theta_0)
-  for (t in 1:n) {
-    # Initialise values <- current, draw_values
-    # Generate vector (step i of recursion)
-    rnorm(n, phi*theta, sigma_eta^2)
-    values = draw_values(n, sigma_eta, phi) # Vector of length n : theta_0 as random sample from normal unconditional distribution of theta
-    normalised_weights = compute_normalised_weights(sigma, theta, y_t)
-    c(att, ptt) = compute_att_ptt(theta, normalised_weights)
-    a_t = resampling(att)
-    alpha_t = resampling(att)
-  } 
-  return(a_t)
-}
 
-initialise_theta <- function(n, sigma_eta, phi){
-  var = sigma_eta^2 / (1 - phi^2)
-  theta_0 = rnorm(n, 0, var)
-  return(theta_0)
-}
-draw_values <- function(theta, sigma_eta, phi){
-  n = length(theta)
-  var = sigma_eta^2 / (1 - phi^2)
-  theta_0 = rnorm(n, 0, var)
-  return(theta_0)
-}
-
-compute_normalised_weights<- function(theta_t, y_t, x_i){
+particle_filter <- function(theta_tilde, w, stockdata, theta){
+  set.seed(1233)
   
-  sigma = sqrt(exp(x_i)) # answer to lucas discussion board
-  weights = exp ( -log (2*pi*sigma^2 ) / 2  - theta_t / 2 - ( exp(- theta_t) * y_t^2)) / (2 * sigma ^ 2) # 322 DK (ii)   
-  normalised_weights = weights / sum ( weights )
+  y <- diff(log(stockdata$Close))
+  x <- log((y - mean(y))^2)
   
-  return(normalised_weights)
-}
-
-compute_att_ptt<- function(weights, theta){
-  a_hat_t_t = sum ( weights * theta_t_i)
-  p_hat_t_t = sum ( weights * theta_t_i ^ 2 - a_hat_t_t ^ 2 )
+  N = 10000;  n = length(y); 
+  omega = -0.088; phi = 0.991; sigma_eta = 0.084
   
-  return(cbind(a_hat_t_t, p_hat_t_t, weights))
+  a = rep(0, 100)
+  H = matrix(data = 0, nrow = N, ncol = n)
+  G = matrix(data = 0, nrow = N, ncol = n)
+  
+  xi = omega/(1-phi)
+  
+  H[,1] = rnorm(N, 0,sqrt(sigma_eta/(1-phi^2)))
+  G[,1] = rnorm(N, 0,sqrt(sigma_eta/(1-phi^2)))
+  
+  for (t in 2:n) {
+    H[,t] = rnorm(N, phi*H[,t-1], sqrt(sigma_eta))
+  }
+  w_tilde = dnorm(0,sqrt(exp(xi)*exp(H[,t]))) #likeliehood
+  w = w_tilde / sum(w_tilde)
+  a[t] = sum(w * H[,t])
+  H = sample_n(data.frame(H), N, replace = TRUE, weight = w)
 }
 
 
-resampling<- function(df_att_ptt_weights){
-  # testing placeholders
-  #   a_hat_t_t = 1:100
-  #   p_hat_t_t = 1:100
-  #   weights = 100:1 / sum(100:1)
-  #   df_att_ptt_weights <- cbind(a_hat_t_t, p_hat_t_t, weights)
-  
-  # Resampling from pg 284
-  
-  att = df_att_ptt_weights[,1]
-  weights = df_att_ptt_weights[,3]
-  weights = abs(rnorm(100,1,.5))
-  resampled = sample_n(input, 100, replace = TRUE, weight = input$weights)
-  
-  return(resampled)
-}
