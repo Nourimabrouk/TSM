@@ -92,7 +92,7 @@ Beta_hat <- QML_params_stocks_rv[4]
 
 
 xi_stocks <- QML_params_stocks[3]/(1 - QML_params_stocks[2])
-xi_stocks_rv <- QML_params_stocks_rv[3]/(1 - QML_params_stocks_rv[2])
+xi_stocks_rv <- QML_params_stocks_rv[3]/(1 - QML_params_stocks_rv[2] + QML_params_stocks_rv[4])
 h_t_stock <- outputKalman_stocks$h_t
 h_t_stock_rv <- outputKalman_stocks_rv$h_t
 H_filtered_stock <- h_t_stock - xi_stocks
