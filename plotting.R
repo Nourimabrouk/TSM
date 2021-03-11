@@ -1,13 +1,14 @@
 #rm(list=ls())
-diff_rvbase = mean(plot_stock_input$H_filtered_stock - plot_stock_input$H_filtered_stock_rv)
-
-diff_three = mean(plot_stock_input$H_smoothed - plot_stock_input$H_smoothed_rv)
 
 library(ggplot2)
 library(ggthemes)
 
 plot_returns_input = readRDS(file = "plot_returns_input.rds")
 plot_stock_input = readRDS(file = "plot_stock_input.rds")
+
+diff_rvbase = mean(plot_stock_input$H_filtered_stock - plot_stock_input$H_filtered_stock_rv)
+diff_three = mean(plot_stock_input$H_smoothed - plot_stock_input$H_smoothed_rv)
+
 
 plot_demeaned <- ggplot(plot_returns_input, aes(index, demeaned))+
   theme_minimal()+
@@ -48,7 +49,7 @@ plot_one <- ggplot(plot_stock_input %>% slice(-c(1:3)), aes(x = index))+
   geom_line(aes(y=alpha), col = "blue", size=0.55)+
   geom_line(aes(y=alpha_rv), col = "red", size=0.55) +
   geom_point(aes(y = x), size = 0.1)+
-  ggtitle("SPX log(x^2) with smoothed estimates h_t")+xlab("Time")+ylab("")
+  ggtitle("")+xlab("Time")+ylab("")
 
 plot_two <-ggplot(plot_stock_input %>% slice(-c(1:2)), aes(x = index))+
 theme_minimal()+

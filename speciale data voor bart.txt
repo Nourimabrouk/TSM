@@ -1,0 +1,15 @@
+transform_data <- function(stockdata, returns){
+  
+  y <- diff(log(stockdata$Close))
+  x <- log((y - mean(y))^2)
+  rv <- stockdata$RV[-1]
+  
+  input_matrix_stocks <- cbind(x, rv)
+  input_returns <- returns$transformed
+  
+  stock_data <- cbind(x, stockdata$RV[-1])
+  speciaal_voor_bart_om_te_plotten <- cbind(y, stockdata$RV)
+  ret_trans <- returns$transformed
+  
+  return(list(stock_data, ret_trans, speciaal_voor_bart_om_te_plotten))
+}
