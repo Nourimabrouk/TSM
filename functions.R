@@ -256,7 +256,7 @@ particle_filter <- function(stockdata){
   y <- diff(log(stockdata$Close))
   x <- log((y - mean(y))^2)
   
-  N = 400;  n = length(y); 
+  N = 450;  n = length(y); 
   omega = -0.088; phi = 0.991; sigma_eta = 0.084
   
   a = rep(0, 100)
