@@ -72,7 +72,7 @@ plot_returns_input <- returns %>% mutate(
   H_smoothed = outputSmooth_returns$alpha - xi_sv)
 
 #e SPX data and Log RV model extension
-par_ini <- c(0.1082, 0.98, -0.2, 0.5)
+par_ini <- c(0.1082, 0.98, -0.2, 0.9)
 QML_params_stocks <- optimize_parameters(input_stocks[,1], par_ini[-4], state_space_parameters, TRUE)
 QML_params_stocks_rv <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
 
@@ -88,17 +88,21 @@ lines(ts(outputSmooth_stocks_rv$alpha))
 points(input_stocks[,1], col="black")
 
 log_RV <- input_stocks[,-1]
+
+omega_hat <- QML_params_stocks_rv[3]
+phi_hat <- QML_params_stocks_rv[2]
 Beta_hat <- QML_params_stocks_rv[4]
 
+xi_stocks <- omega_hat/(1 - phi_hat)
+xi_stocks_rv <- omega_hat/(1 - phi_hat - Beta_hat)
 
-xi_stocks <- QML_params_stocks[3]/(1 - QML_params_stocks[2])
-xi_stocks_rv <- QML_params_stocks_rv[3]/(1 - QML_params_stocks_rv[2] + QML_params_stocks_rv[4])
 h_t_stock <- outputKalman_stocks$h_t
 h_t_stock_rv <- outputKalman_stocks_rv$h_t
+
 H_filtered_stock <- h_t_stock - xi_stocks
 H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
-H_smoothed <- outputSmooth_stocks$alpha - xi_stocks 
 
+H_smoothed <- outputSmooth_stocks$alpha - xi_stocks 
 H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv 
 
 plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
