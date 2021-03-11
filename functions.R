@@ -251,12 +251,12 @@ compute_smoothed_state <- function(data, theta, kf){
 }
 
 particle_filter <- function(stockdata){
-  set.seed(1233)
+  set.seed(1337)
   
   y <- diff(log(stockdata$Close))
   x <- log((y - mean(y))^2)
   
-  N = 10;  n = length(y); 
+  N = 450;  n = length(y); 
   omega = -0.088; phi = 0.991; sigma_eta = 0.084
   
   a = rep(0, 100)
