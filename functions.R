@@ -138,7 +138,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   
   for (t in 1:n) {
     #print(cbind(x[t], h[t], y[t]))
-    v[t] <- (y[t] - d) - Z*h[t] - x[t]*Beta
+    v[t] <- (y[t] - d) - Z*h[t] 
     F[t] <- Z^2*P[t] + H
     K[t] <- T*(P[t]/F[t])
 
@@ -146,12 +146,12 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
     P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
     
     if(t < n-1){
-      h[t+1] <- c + T*h_t[t]
+      h[t+1] <- c + T*h_t[t] - x[t]*Beta
       P[t+1] <- T^2*P_t[t] + Q*(R^2)
     }  
   
   # Final index of arrays  
-  h[n] <- c + T*h_t[n-1]            
+  h[n] <- c + T*h_t[n-1] - x[n-1]*Beta           
   P[n] <- T^2*P_t[n-1] + Q*(R^2)
 
   h_t[n] <- h[n] + P[n]*Z*v[n]/F[n]

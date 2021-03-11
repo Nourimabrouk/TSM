@@ -2,7 +2,7 @@ rm(list=ls())
 # Imports ----------
 
 source("functions.R")
-#source("Plotting.R")
+source("Plotting.R")
 
 library(here)
 library(tidyverse)
@@ -54,22 +54,27 @@ descriptive_e1
 descriptive_e2 <- descriptive_stats(input_stocks[,-1])
 descriptive_e2 
 
-#c / e -> need to separate these?
 par_ini <- c(0.1082, 0.98, -0.2, 0.9)
-
 initial_parameters <- initialise_parameters_QML(par_ini)
 
 state_space_parameters <- initial_parameters[[1]]
 par_ini <- initial_parameters[[2]]
 
 QML_params_returns <- optimize_parameters(input_returns, par_ini[-4], state_space_parameters, TRUE) # (Print_output = TRUE)
-
-QML_params_stocks <- optimize_parameters(input_stocks[,1], par_ini[-4], state_space_parameters, TRUE)
-QML_params_stocks_rv <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
-
-#d
 outputKalman_returns <- compute_kalmanfilter(input_returns, QML_params_returns, state_space_parameters)
 outputSmooth_returns <- compute_smoothed_state(input_returns, QML_params_returns, outputKalman_returns)
+
+xi_sv <- QML_params_returns[3]/(1 - QML_params_returns[2])
+h_t <- outputKalman_returns$h_t
+plot_returns_input <- returns %>% mutate(
+  alpha = outputSmooth_returns$alpha,
+  H_filtered = h_t - xi_sv,
+  H_smoothed = outputSmooth_returns$alpha - xi_sv)
+
+#e SPX data and Log RV model extension
+par_ini <- c(-0.1082, -0.98, -0.2, 0.5)
+QML_params_stocks <- optimize_parameters(input_stocks[,1], par_ini[-4], state_space_parameters, TRUE)
+QML_params_stocks_rv <- optimize_parameters(input_stocks, par_ini, state_space_parameters, TRUE)
 
 outputKalman_stocks <- compute_kalmanfilter(input_stocks[,1], QML_params_stocks, state_space_parameters)
 outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1], QML_params_stocks, outputKalman_stocks)
@@ -77,25 +82,34 @@ outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1], QML_params_stock
 outputKalman_stocks_rv <- compute_kalmanfilter(input_stocks, QML_params_stocks_rv, state_space_parameters)
 outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks, QML_params_stocks_rv, outputKalman_stocks_rv)
 
-plot(ts(outputKalman_stocks_rv$P))
-plot(ts(outputKalman_stocks$P))
-
-source("functions.R")
+plot(ts(outputSmooth_stocks$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
+points(returns$transformed, col="black")
 
 #plot 1 
 plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
-points(returns$transformed, col="black")
+lines(ts(outputSmooth_stocks_rv$alpha))
+points(input_stocks[,1], col="black")
 
-xi_sv <- QML_params_returns[3]/(1 - QML_params_returns[2])
+log_RV <- input_stocks[,-1]
+Beta_hat <- QML_params_stocks_rv[4]
+
+
 xi_stocks <- QML_params_stocks[3]/(1 - QML_params_stocks[2])
 xi_stocks_rv <- QML_params_stocks_rv[3]/(1 - QML_params_stocks_rv[2])
 h_t_stock <- outputKalman_stocks$h_t
 h_t_stock_rv <- outputKalman_stocks_rv$h_t
 H_filtered_stock <- h_t_stock - xi_stocks
-H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
-H_smoothed <- outputSmooth_stocks$alpha - xi_stocks
-H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
-particle_filtered_stock <- particle_filter(stockdata)
+H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv - Beta_hat*log_RV
+H_smoothed <- outputSmooth_stocks$alpha - xi_stocks 
+
+H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv + Beta_hat*log_RV
+
+plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
+plot(ts(H_filtered_stock_rv))
+
+plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
+plot(ts(H_smoothed_rv))
+
 
 #f
 
@@ -104,6 +118,8 @@ plot_returns_input <- returns %>% mutate(
   H_filtered = h_t - xi_sv,
   H_smoothed = outputSmooth_returns$alpha - xi_sv)
 
+
+#particle_filtered_stock <- particle_filter(stockdata)
 plot_stock_input <- stockdata %>% 
   slice(-1) %>% 
   mutate(
@@ -116,6 +132,7 @@ plot_stock_input <- stockdata %>%
     H_filtered_stock = H_filtered_stock,
     H_filtered_stock_rv = H_filtered_stock_rv,
     particle_filtered_stock = particle_filtered_stock)
+
 
 
 saveRDS(plot_returns_input, file = "plot_returns_input.rds")

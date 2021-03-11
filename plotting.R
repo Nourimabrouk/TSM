@@ -59,12 +59,13 @@ colnames(plot_stock_input)
 
 
 # 
+
 plot_one <-ggplot(plot_stock_input, aes(x = index))+
 theme_minimal()+
   geom_line(aes(y=alpha), col = "blue")+
   geom_line(aes(y=alpha_rv), col = "red") +
   geom_point(aes(y = x), size = 0.1)+
-  ggtitle("Plot 1 zeus")+xlab("Index")+ylab("")
+  ggtitle("Plot 1 ")+xlab("Index")+ylab("")
 
 plot_two <-ggplot(plot_stock_input, aes(x = index))+
 theme_minimal()+
@@ -77,6 +78,10 @@ plot_three <- ggplot(plot_stock_input, aes(x = index))+
     geom_line(aes(y=H_smoothed))+
     geom_line(aes(y=H_smoothed_rv), col = "red") +
     ggtitle("Plot 3 zeus")+xlab("Index")+ylab("")
+
+plot_one
+plot_two
+plot_three
 
 plot_particle <- ggplot(plot_stock_input, aes(x = index))+
   theme_minimal()+
