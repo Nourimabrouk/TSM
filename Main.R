@@ -42,23 +42,24 @@ stockdata <- stocks %>%
   filter(Symbol == ".SPX" & year(X1) > 2015) %>% 
   select(X1,close_price, rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
   rename(Date = X1, Close = close_price, RV_rkp = rk_parzen) %>%
-  mutate(RV = log(RV_rkps)) %>% 
+  mutate(RV = log(RV_rkp)) %>% 
   as_tsibble()
 # ab
 
 transformed_df = transform_data(stockdata, returns)
 input_stocks = transformed_df[[1]]
 input_returns = transformed_df[[2]]
+stockdata_not_transformed <- transformed_df[[3]]
 
 # Descriptive stats
-descriptive_a <- descriptive_stats(returns$x)
+descriptive_a <- descriptive_stats(returns$demeaned)
 descriptive_a
 descriptive_b <- descriptive_stats(returns$transformed)
 descriptive_b
 
-descriptive_e1 <- descriptive_stats(input_stocks[,1])
+descriptive_e1 <- descriptive_stats(stockdata_not_transformed[,1])
 descriptive_e1 
-descriptive_e2 <- descriptive_stats(input_stocks[,-1])
+descriptive_e2 <- descriptive_stats(stockdata_not_transformed[,-1])
 descriptive_e2 
 
 par_ini <- c(0.1082, 0.98, -0.2, 0.9)
