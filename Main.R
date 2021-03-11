@@ -1,8 +1,15 @@
 rm(list=ls())
+"
+To run:
+Run main
+Run plotting separately
+"
+
+
+
 # Imports ----------
 
 source("functions.R")
-source("Plotting.R")
 
 library(here)
 library(tidyverse)
@@ -116,7 +123,7 @@ plot_returns_input <- returns %>% mutate(
   H_smoothed = outputSmooth_returns$alpha - xi_sv)
 
 
-#particle_filtered_stock <- particle_filter(stockdata)
+particle_filtered_stock <- particle_filter(stockdata)
 plot_stock_input <- stockdata %>% 
   slice(-1) %>% 
   mutate(
@@ -128,7 +135,9 @@ plot_stock_input <- stockdata %>%
     h_t_stock_rv = h_t_stock_rv,
     H_filtered_stock = H_filtered_stock,
     H_filtered_stock_rv = H_filtered_stock_rv,
-    particle_filtered_stock = particle_filtered_stock)
+    particle_filtered_stock = particle_filtered_stock,
+    H_smoothed = H_smoothed,
+    H_smoothed_rv = H_smoothed_rv)
 
 saveRDS(plot_returns_input, file = "plot_returns_input.rds")
 saveRDS(plot_stock_input, file = "plot_stock_input.rds")
