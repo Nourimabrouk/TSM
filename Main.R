@@ -41,8 +41,8 @@ returns <- data %>%
 stockdata <- stocks %>%   
   filter(Symbol == ".SPX" & year(X1) > 2015) %>% 
   select(X1,close_price, rk_parzen) %>% # replace rk_parzen with realized volatility measure of choice
-  rename(Date = X1, Close = close_price, RV = rk_parzen) %>%
-  mutate(RV = log(RV)) %>% 
+  rename(Date = X1, Close = close_price, RV_rkp = rk_parzen) %>%
+  mutate(RV = log(RV_rkps)) %>% 
   as_tsibble()
 # ab
 
@@ -127,7 +127,7 @@ plot_returns_input <- returns %>% mutate(
   H_smoothed = outputSmooth_returns$alpha - xi_sv)
 
 
-particle_filtered_stock <- particle_filter(stockdata)
+#particle_filtered_stock <- particle_filter(stockdata)
 plot_stock_input <- stockdata %>% 
   slice(-1) %>% 
   mutate(

@@ -175,8 +175,9 @@ transform_data <- function(stockdata, returns){
   
   stock_data <- cbind(x, stockdata$RV[-1])
   ret_trans <- returns$transformed
+  speciaal_voor_bart_om_te_plotten <- cbind(y, stockdata$RV_rkp)
   
-  return(list(stock_data, ret_trans))
+  return(list(stock_data, ret_trans, speciaal_voor_bart_om_te_plotten))
 }
 
 initialise_parameters_QML <- function(par_ini){
