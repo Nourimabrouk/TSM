@@ -90,35 +90,36 @@ outputSmooth_stocks <- compute_smoothed_state(input_stocks[,1], QML_params_stock
 outputKalman_stocks_rv <- compute_kalmanfilter(input_stocks, QML_params_stocks_rv, state_space_parameters)
 outputSmooth_stocks_rv <- compute_smoothed_state(input_stocks, QML_params_stocks_rv, outputKalman_stocks_rv)
 
+omega_hat <- QML_params_stocks[3]
+phi_hat <- QML_params_stocks[2]
+xi_stocks <- omega_hat/(1 - phi_hat)
+
+omega_hat_rv <- QML_params_stocks_rv[3]
+phi_hat_rv <- QML_params_stocks_rv[2]
+Beta_hat_rv <- QML_params_stocks_rv[4]
+xi_stocks_rv <- omega_hat_rv/(1 - phi_hat_rv - Beta_hat_rv)
+
+log_RV <- input_stocks[,-1]
 #plot 1 
+
 plot(ts(outputSmooth_returns$alpha) , col="red", plot.type="single", ylab="", main="h_t", ylim=c(min(returns$transformed), max(returns$transformed)))
 lines(ts(outputSmooth_stocks_rv$alpha))
 points(input_stocks[,1], col="black")
 
-log_RV <- input_stocks[,-1]
-
-omega_hat <- QML_params_stocks_rv[3]
-phi_hat <- QML_params_stocks_rv[2]
-Beta_hat <- QML_params_stocks_rv[4]
-
-xi_stocks <- omega_hat/(1 - phi_hat)
-xi_stocks_rv <- omega_hat/(1 - phi_hat - Beta_hat)
-
 h_t_stock <- outputKalman_stocks$h_t
-h_t_stock_rv <- outputKalman_stocks_rv$h_t
+h_t_stock_rv <- outputKalman_stocks_rv$h_t 
 
-H_filtered_stock <- h_t_stock - xi_stocks
+H_filtered_stock <- h_t_stock - xi_stocks 
 H_filtered_stock_rv <- h_t_stock_rv - xi_stocks_rv
 
 H_smoothed <- outputSmooth_stocks$alpha - xi_stocks 
-H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv 
+H_smoothed_rv <- outputSmooth_stocks_rv$alpha - xi_stocks_rv
 
 plot(ts(H_filtered_stock), col="red", plot.type="single", ylab="", main="H_t Filtered")
 plot(ts(H_filtered_stock_rv))
 
 plot(ts(H_smoothed), col="red", plot.type="single", ylab="", main="H_t Smoothed")
 plot(ts(H_smoothed_rv))
-
 
 #f
 
@@ -129,11 +130,21 @@ plot_returns_input <- returns %>% mutate(
 
 
 #particle_filtered_stock <- particle_filter(stockdata)
+descriptive_e1 <- descriptive_stats(stockdata_not_transformed[,1])
+descriptive_e1 
+descriptive_e2 <- descriptive_stats(stockdata_not_transformed[,-1])
+descriptive_e2 
+
+
+
 plot_stock_input <- stockdata %>% 
   slice(-1) %>% 
   mutate(
     index = 1:1286,
+    y = stockdata_not_transformed[,1],
     x = input_stocks[,1],
+    rv = stockdata_not_transformed[,-1],
+    rv_transformed = input_stocks[,-1],
     alpha = outputSmooth_stocks$alpha,
     alpha_rv = outputSmooth_stocks_rv$alpha,
     h_t_stock = h_t_stock,

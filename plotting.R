@@ -9,6 +9,42 @@ plot_stock_input = readRDS(file = "plot_stock_input.rds")
 diff_rvbase = mean(plot_stock_input$H_filtered_stock - plot_stock_input$H_filtered_stock_rv)
 diff_three = mean(plot_stock_input$H_smoothed - plot_stock_input$H_smoothed_rv)
 
+plot_index_demeaned <- ggplot(plot_stock_input, aes(index, y))+
+  theme_minimal()+
+  geom_line()+
+  geom_hline(yintercept = 0)+
+  scale_y_continuous()+
+  scale_x_continuous()+
+  xlab("Time index")+ylab("Demeaned returns")
+plot_index_demeaned
+
+plot_index_transformed <- ggplot(plot_stock_input, aes(index, x))+
+  theme_minimal()+
+  geom_line()+  
+  geom_hline(yintercept = 0)+
+  scale_y_continuous()+
+  scale_x_continuous(breaks = seq(0,1286,100))+
+  xlab("Time index")+ylab("Transformed returns")
+plot_index_transformed
+
+plot_rv <- ggplot(plot_stock_input, aes(index, rv))+
+  theme_minimal()+
+  geom_line()+
+  geom_hline(yintercept = 0)+
+  scale_y_continuous()+
+  scale_x_continuous()+
+  xlab("Time index")+ylab("Realized variance")
+plot_rv
+
+plot_rv_transformed <- ggplot(plot_stock_input, aes(index, rv_transformed))+
+  theme_minimal()+
+  geom_line()+
+  geom_hline(yintercept = 0)+
+  scale_y_continuous()+
+  scale_x_continuous(breaks = seq(0,1286,100))+
+  xlab("Time index")+ylab("Transformed Realized variance")
+plot_rv_transformed
+
 
 plot_demeaned <- ggplot(plot_returns_input, aes(index, demeaned))+
   theme_minimal()+
@@ -17,6 +53,7 @@ plot_demeaned <- ggplot(plot_returns_input, aes(index, demeaned))+
   scale_y_continuous(breaks = seq(-.05,.05,.025))+
   scale_x_continuous(breaks = seq(0,900,100))+
   xlab("Time index")+ylab("Demeaned returns")
+
 plot_transformed <- ggplot(plot_returns_input, aes(index, transformed))+
   theme_minimal()+
   geom_line()+
@@ -45,19 +82,20 @@ plot_one <- ggplot(plot_stock_input %>% slice(-c(1:3)), aes(x = index))+
   # Dots = Log x^2
   # Blue = smoothed ht with rv
   # Red = smoothed ht base model
+  # SPX log(x^2) with smoothed estimates h_t
   theme_minimal()+
   geom_line(aes(y=alpha), col = "blue", size=0.55)+
   geom_line(aes(y=alpha_rv), col = "red", size=0.55) +
   geom_point(aes(y = x), size = 0.1)+
   ggtitle("")+xlab("Time")+ylab("")
 
-plot_two <-ggplot(plot_stock_input %>% slice(-c(1:2)), aes(x = index))+
+plot_two <-ggplot(plot_stock_input %>% slice(-c(1:1)), aes(x = index))+
 theme_minimal()+
   geom_line(aes(y=H_filtered_stock), col = "blue")+
   geom_line(aes(y=H_filtered_stock_rv+diff_rvbase), col = "red") +
  xlab("Time index")+ylab("")
 
-plot_three <- ggplot(plot_stock_input %>% slice(-c(1:3)), aes(x = index))+
+plot_three <- ggplot(plot_stock_input %>% slice(-c(1:1)), aes(x = index))+
     theme_minimal()+
     geom_line(aes(y=H_smoothed), col = "blue") +
     geom_line(aes(y=H_smoothed_rv + diff_three), col = "red") +

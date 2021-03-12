@@ -138,7 +138,7 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
   
   for (t in 1:n) {
     #print(cbind(x[t], h[t], y[t]))
-    v[t] <- (y[t] - d) - Z*h[t] 
+    v[t] <- (y[t] - d) - Z*h[t]
     F[t] <- Z^2*P[t] + H
     K[t] <- T*(P[t]/F[t])
 
@@ -146,12 +146,12 @@ compute_kalmanfilter <- function(data, theta, state_space_matrices){
     P_t[t] <- P[t] - (P[t]^2)*(Z^2)/F[t]
     
     if(t < n-1){
-      h[t+1] <- c + T*h_t[t] - x[t]*Beta
+      h[t+1] <- c + T*h_t[t] - x[t+1]*Beta
       P[t+1] <- T^2*P_t[t] + Q*(R^2)
     }  
   
   # Final index of arrays  
-  h[n] <- c + T*h_t[n-1] - x[n-1]*Beta           
+  h[n] <- c + T*h_t[n-1] - x[n]*Beta           
   P[n] <- T^2*P_t[n-1] + Q*(R^2)
 
   h_t[n] <- h[n] + P[n]*Z*v[n]/F[n]
@@ -173,11 +173,11 @@ transform_data <- function(stockdata, returns){
   input_matrix_stocks <- cbind(x, rv)
   input_returns <- returns$transformed
   
-  stock_data <- cbind(x, stockdata$RV[-1])
+  stock_data_trans <- cbind(x, stockdata$RV[-1])
   ret_trans <- returns$transformed
-  speciaal_voor_bart_om_te_plotten <- cbind(y, stockdata$RV_rkp[-1])
+  stock_data_plain <- cbind(y, stockdata$RV_rkp[-1])
   
-  return(list(stock_data, ret_trans, speciaal_voor_bart_om_te_plotten))
+  return(list(stock_data_trans, ret_trans, stock_data_plain))
 }
 
 initialise_parameters_QML <- function(par_ini){
@@ -211,6 +211,13 @@ compute_smoothed_state <- function(data, theta, kf){
   K <- kf$K
   
   phi <- theta[2]
+  
+  if(length(theta)==4){
+    beta <- theta[4]
+  } else {
+    beta <- 0
+  }
+
   Z <- 1
   
   n <- length(v)
@@ -235,7 +242,7 @@ compute_smoothed_state <- function(data, theta, kf){
     else {                   
       r[j-1] <- (v[j]/F[j]) + L[j]*r[j]
     }
-    alpha[j] <- h[j] + P[j]*r[j-1]
+    alpha[j] <- h[j] + P[j]*r[j-1] 
   }
   
   N[1] <- (1/F[2]) + (L[2]^2) * N[2]
@@ -244,7 +251,7 @@ compute_smoothed_state <- function(data, theta, kf){
   V[1] <- P[1] - (P[1]^2)*N_0 
   
   r_0 <- (v[1]/F[1]) + L[1]*r[1]
-  alpha[1] <- h[1] + P[1]*r_0
+  alpha[1] <- h[1] + P[1]*r_0 
   
   Smoothedstate <- data.frame(alpha, r, N, V)
   
